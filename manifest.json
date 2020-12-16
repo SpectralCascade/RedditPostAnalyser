@@ -1,6 +1,16 @@
 {
-  "name": "Reddit Post Analyser"
-  "version": "0.1"
-  "description": "Program to analyse and visualise data on individual Reddit"
-  "manifest_version": 1
+  "name": "Reddit Post Analyser",
+  "version": "0.1",
+  "description": "Program to analyse and visualise data on individual Reddit",
+  "manifest_version": 2,
+  "background": {
+    "scripts": ["src/scripts/main.js"],
+    "persistent": false
+  },
+  "browser_action": {},
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "https://reddit.com/*"
+  ]
 }
