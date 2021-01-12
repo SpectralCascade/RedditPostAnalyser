@@ -1,7 +1,7 @@
 {
   "name": "Reddit Post Analyser",
   "version": "0.1",
-  "description": "Program to analyse and visualise data on individual Reddit",
+  "description": "Program to analyse and visualise data on individual Reddit posts.",
   "manifest_version": 2,
   "background": {
     "scripts": ["src/scripts/main.js"],
