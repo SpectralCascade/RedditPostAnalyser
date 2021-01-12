@@ -1,0 +1,1 @@
+1. Save URL to localStorage rather than the raw JSON and process everything in output.html.
