@@ -21,6 +21,7 @@ function main(tab) {
 function parseJSON(data) {
   if (data != null)
   {
+    localStorage.setItem("redditDataJSON", data);
     chrome.tabs.create({url: 'src/ui/output.html'});
   }
   else
