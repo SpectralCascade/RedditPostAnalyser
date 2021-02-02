@@ -4,13 +4,17 @@
   "description": "Program to analyse and visualise data on individual Reddit posts.",
   "manifest_version": 2,
   "background": {
-    "scripts": ["src/scripts/main.js"],
+    "scripts": [
+      "src/scripts/main.js",
+      "src/scripts/contextmenus.js"
+    ],
     "persistent": false
   },
   "browser_action": {},
   "permissions": [
     "activeTab",
     "tabs",
-    "https://reddit.com/*"
+    "https://reddit.com/*",
+    "contextMenus"
   ]
 }
