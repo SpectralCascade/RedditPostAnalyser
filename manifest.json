@@ -5,6 +5,7 @@
   "manifest_version": 2,
   "background": {
     "scripts": [
+      "src/scripts/process_json.js",
       "src/scripts/main.js",
       "src/scripts/contextmenus.js"
     ],

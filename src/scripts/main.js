@@ -1,4 +1,4 @@
-function main(tab) {
+function main(tab) {    
   let mainurl = tab.url + '.json';
 
   var xhttp = new XMLHttpRequest();
@@ -21,6 +21,7 @@ function main(tab) {
 function parseJSON(data) {
   if (data != null)
   {
+    data = process_raw(data);
     localStorage.setItem("redditDataJSON", data);
     chrome.tabs.create({url: 'src/ui/output.html'});
   }
