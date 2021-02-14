@@ -8,9 +8,11 @@ document.write("<p style=\"font-size: 24pt;\">Analysis of <strong>" + obj[0].dat
 document.write("<h3>Generated on " + date + "</h3>");
 document.write("<br /><h1>Upvotes: " + obj[0].data.children[0].data.ups + "</h1>");
 var totalUps = obj[0].data.children[0].data.ups;
-document.write("<br /><h1>Downvotes (estimate): " + 
+document.write("<br /><h1>Downvotes (estimate): " +
     Math.round(((totalUps / (obj[0].data.children[0].data.upvote_ratio * 100)) * 100) - totalUps) +
     "</h1>"
 );
+
+
 
 //document.write("<p style=\"text-align: left;\">" + data + "</p>");
