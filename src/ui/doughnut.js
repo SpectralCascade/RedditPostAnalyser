@@ -2,7 +2,6 @@ var data = localStorage.getItem("redditDataJSON");
 
 // Parse the JSON data
 var obj = JSON.parse(data);
-//var date = new Date();
 
 var label = ["Upvotes","Downvotes"]
 var upvotes = obj[0].data.children[0].data.ups;
