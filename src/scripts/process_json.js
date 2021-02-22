@@ -1,5 +1,6 @@
-
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+if (typeof XMLHttpRequest === 'undefined') {
+    var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+}
 
 function download_raw(url, parseDataCallback) {
     let mainurl = url + '.json';
