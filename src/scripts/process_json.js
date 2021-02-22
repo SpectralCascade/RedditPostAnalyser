@@ -8,7 +8,7 @@ function download_raw(url, parseDataCallback) {
     var xhttp = new XMLHttpRequest();
 
     xhttp.open("GET", mainurl, false);
-    xhttp.setRequestHeader("Content-Type", "*/*");
+    xhttp.setRequestHeader("Content-Type", "text/plain");
 
     xhttp.onreadystatechange = function() {
         if (xhttp.readyState == 4) {
@@ -95,7 +95,7 @@ function process_raw(raw_json) {
             var xhttp = new XMLHttpRequest();
 
             xhttp.open("GET", query + postLinks[i], false);
-            xhttp.setRequestHeader("Content-Type", "*/*");
+            xhttp.setRequestHeader("Content-Type", "text/plain");
 
             xhttp.onreadystatechange = function() {
                 if (xhttp.readyState == 4) {

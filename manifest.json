@@ -18,6 +18,7 @@
     "activeTab",
     "tabs",
     "https://reddit.com/*",
+    "http://api.pushshift.io/*",
     "contextMenus"
   ]
 }
