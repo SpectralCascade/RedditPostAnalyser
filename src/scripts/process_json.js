@@ -7,7 +7,7 @@ function download_raw(url, parseDataCallback) {
 
     var xhttp = new XMLHttpRequest();
 
-    xhttp.open("GET", mainurl, false);
+    xhttp.open("GET", mainurl, true);
     xhttp.setRequestHeader("Content-Type", "text/plain");
 
     xhttp.onreadystatechange = function() {
@@ -94,6 +94,7 @@ function process_raw(raw_json) {
 
             var xhttp = new XMLHttpRequest();
 
+            // TODO: try and make async queries to pushshift?
             xhttp.open("GET", query + postLinks[i], false);
             xhttp.setRequestHeader("Content-Type", "text/plain");
 
