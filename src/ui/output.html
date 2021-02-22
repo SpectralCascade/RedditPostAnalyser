@@ -3,6 +3,7 @@
   <head>
     <title>Reddit Post Analyser</title>
     <link rel="stylesheet" href="content.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
   </head>
   <body>
@@ -24,8 +25,44 @@
           <h2 style=\"font-size: 24pt">Pie Chart</h2>
           <canvas id="pie" width="900" height="400"></canvas>
       </div>
-  </div>
-  <script src = "pie.js"></script>
+    </div>
+    <script src = "pie.js"></script>
+
+    <div class="container">
+      <div>
+        <h2 style=\"font-size: 24pt">Line Chart</h2>
+        <canvas id="line" width="900" height="400"></canvas>
+      </div>
+    </div>
+    <script src = "line.js"></script>
+<!--
+    <canvas id="myChart"></canvas>
+    <select id="chartType">
+        <option value="line">Line</option>
+        <option value="pie">Pie</option>
+    </select>
+
+    <script src = "dropdownTest.js"></script>
+-->
+    <br />
+    <div id="text-holder">
+
+   </div>
+   <br />
+   <a id = "link">
+      <select id="chartType">
+          <option value="line">Line</option>
+          <option value="pie">Pie</option>
+      </select>
+    </a>
+
+    <div class="container">
+      <div>
+        <h2 style=\"font-size: 24pt">Line Chart</h2>
+        <canvas id="test" width="900" height="400"></canvas>
+      </div>
+    </div>
+    <script src="test.js"></script>
 
     <p id='test'></p>
     <a href="https://github.com/SpectralCascade/RedditPostAnalyser">Learn more</a>
