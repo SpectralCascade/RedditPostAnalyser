@@ -115,7 +115,7 @@ function process_raw(raw_json) {
     }
     
     
-    return data;
+    return String(data);
 }
 
 if (typeof module !== 'undefined') {
