@@ -1,5 +1,9 @@
+var asyncRequest = true;
+
 if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+    // Node standalone code requires response before continuing to next post URL
+    asyncRequest = false;
 }
 
 function download_raw(url, parseDataCallback) {
@@ -7,7 +11,7 @@ function download_raw(url, parseDataCallback) {
 
     var xhttp = new XMLHttpRequest();
 
-    xhttp.open("GET", mainurl, true);
+    xhttp.open("GET", mainurl, asyncRequest);
     xhttp.setRequestHeader("Content-Type", "text/plain");
 
     xhttp.onreadystatechange = function() {
