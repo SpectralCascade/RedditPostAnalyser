@@ -142,8 +142,25 @@ function process_links(data, processed) {
         
 }
 
+function recursiveChild (processed, children) {
+    
+    for( var i=0; i <children.length; i++){
+        if(Array.isArray(children[i].data.replies)) {
+            recursiveChild(processed, children[i].data.replies.data.children);
+        }
+         //processing
+        if (children[i].data.controversiality > 0){
+        processed.contCount++;
+        }
+    
+    }
+
+}
+
+
 function process_meta(data, processed) {
     //post
+    processed["contCount"]=0;
     processed.date = new Date();
     processed.postDate = data[0].data.children[0].data.created_utc;
     processed.title = data[0].data.children[0].data.title;
@@ -152,9 +169,11 @@ function process_meta(data, processed) {
     processed.numComments = data[0].data.children[0].data.num_comments;
     processed.totalAwards = data[0].data.children[0].data.total_awards_received;
     processed.crossPosts = data[0].data.children[0].data.num_crossposts;
+    //processed.count = recursiveChild(data[1].data.controversiality);
     //comments - in progress :)
     //processed.controversiality = data[1].data.children[0].data.controversiality;
     //processed.subreddit = data[1].data.children[0].data.subreddit;
+    recursiveChild(processed, data[1].data.children);
 }
 
 function process_raw(raw_json) {

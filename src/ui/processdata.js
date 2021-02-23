@@ -12,9 +12,8 @@ document.write("<h3>Total Awards: " + processed.totalAwards + "</h3>");
 document.write("<h3>Number of CrossPosts:  " + processed.crossPosts + "</h3>");
 document.write("<br /><h1>Upvotes: " + processed.upVotes + "</h1>");
 //var totalUps = obj[0].data.children[0].data.ups;
-document.write("<br /><h1>Downvotes (estimate): " + processed.downEst +
-    "</h1>"
-);
+document.write("<br /><h1>Downvotes (estimate): " + processed.downEst + "</h1>");
+document.write("<br /><h1>Comments Controversiality: " + String(processed.contCount)+ "</h1>");
 
 document.write("<br /><h3>Total links in post: " + processed.postLinks.length + "</h3>");
 
