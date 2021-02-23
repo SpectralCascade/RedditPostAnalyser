@@ -16,6 +16,12 @@ document.write("<br /><h1>Downvotes (estimate): " + processed.downEst +
     "</h1>"
 );
 
+document.write("<br /><h3>Total links in post: " + processed.postLinks.length + "</h3>");
 
+for (var i = 0; i < processed.postLinks.length; i++) {
+    document.write("<br />Link: <a href=\"" + processed.postLinks + "\">" + processed.postLinks[i].url + "</a>");
+    document.write("Occurrences: " + String(processed.postLinks[i].occurrences));
+    document.write("Total subreddits: " + String(processed.postLinks[i].numSubreddits) + "<br /><br />");
+}
 
 //document.write("<p style=\"text-align: left;\">" + data + "</p>");

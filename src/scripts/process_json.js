@@ -28,6 +28,7 @@ function download_raw(url, parseDataCallback) {
 
 function process_links(data, processed) {
     var postLinks = [];
+    processed.postLinks = [];
 
     // First, analyse the post itself
     // TODO: analyse comments for links too
@@ -46,6 +47,8 @@ function process_links(data, processed) {
                     var hasOpenBracket = post[foundIndex - (isSecure ? 6 : 5)] == '(';
                     var numOpenBrackets = hasOpenBracket ? 1 : 0;
 
+                    // TODO: search both http and https occurrences
+                    // TODO: handle case where a link is followed by link markup e.g. https%3A%2F%2Fwww.reddit.com%2Fr%2Faww%2Fnew.json%5D(https%3A%2F%2Fwww.reddit.com%2Fr%2Faww%2Fnew.json%5D)
                     var url = isSecure ? "https" : "http";
                     var allowedCharacters = "!#$&'()*+,/:;=?@[]abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~%";
                     for (var c = foundIndex; c < post.length; c++) {
@@ -83,15 +86,16 @@ function process_links(data, processed) {
     }
 
     console.log("Found links:\n" + String(postLinks));
-
+    
     var query = "http://api.pushshift.io/reddit/submission/search/?q="
 
+    rawPostLinks = [];
     // Now convert links to searchable URI strings and search with pushshift
-    var occurrenceCount = 0;
     for (var i = 0, counti = postLinks.length; i < counti; i++) {
+        rawPostLinks.push(postLinks[i]);
         postLinks[i] = encodeURIComponent(postLinks[i]);
         console.log("\nSearching Reddit for occurrence of link:\n" + postLinks[i]);
-
+        
         var xhttp = new XMLHttpRequest();
 
         // TODO: try and make async queries to pushshift?
@@ -104,7 +108,30 @@ function process_links(data, processed) {
                     if (xhttp.responseText != null) {
                         results = JSON.parse(xhttp.responseText);
                         //console.log(results.data[0].full_link);
-                        occurrenceCount++;
+                        
+                        // Metadata for each processed link
+                        processed.postLinks.push({
+                            "url" : rawPostLinks[i],
+                            "subreddits" : {},
+                            "occurrences" : 0,
+                            "numSubreddits" : 0
+                        });
+
+                        // Using the query results, determine occurrences and which subreddits the links appear in.
+                        for (var j = 0, countj = results.data.length; j < countj; j++) {
+                            processed.postLinks[i].occurrences++;
+                            if (!(results.data[j].subreddit_id in processed.postLinks[i])) {
+                                processed.postLinks[i].subreddits[results.data[j].subreddit_id] = {};
+                                processed.postLinks[i].numSubreddits++;
+                            }
+                            processed.postLinks[i].subreddits[results.data[j].subreddit_id]["name"] = results.data[j].subreddit;
+                            if (!("locations" in processed.postLinks[i].subreddits[results.data[j].subreddit_id])) {
+                                processed.postLinks[i].subreddits[results.data[j].subreddit_id]["locations"] = [];
+                            }
+                            processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations.push(
+                                results.data[j].url
+                            );
+                        }
                     }
                 }
             }
@@ -112,7 +139,7 @@ function process_links(data, processed) {
         xhttp.send();
 
     }
-    
+        
 }
 
 function process_meta(data, processed) {
