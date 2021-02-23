@@ -116,7 +116,18 @@ function process_links(data, processed) {
 }
 
 function process_meta(data, processed) {
-    processed.title = obj[0].data.children[0].data.title;
+    //post
+    processed.date = new Date();
+    processed.postDate = data[0].data.children[0].data.created_utc;
+    processed.title = data[0].data.children[0].data.title;
+    processed.upVotes =  data[0].data.children[0].data.ups;
+    processed.downEst = Math.round(((processed.upVotes / (data[0].data.children[0].data.upvote_ratio * 100)) * 100) - processed.upVotes);
+    processed.numComments = data[0].data.children[0].data.num_comments;
+    processed.totalAwards = data[0].data.children[0].data.total_awards_received;
+    processed.crossPosts = data[0].data.children[0].data.num_crossposts;
+    //comments - in progress :)
+    //processed.controversiality = data[1].data.children[0].data.controversiality;
+    //processed.subreddit = data[1].data.children[0].data.subreddit;
 }
 
 function process_raw(raw_json) {
@@ -131,7 +142,6 @@ function process_raw(raw_json) {
 
     }
     
-    processed = data; // TODO: format processed data instead and remove me
     
     return JSON.stringify(processed);
 }
