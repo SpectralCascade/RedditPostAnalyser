@@ -9,17 +9,20 @@ if (chrome) {
     throw new Error('Could not find browser extension sdk');
 }
 const actions = {
-      'import': 'https:google.com/',
-      github: 'https://github.com/SpectralCascade/RedditPostAnalyser',
+      github: 'https://github.com/SpectralCascade/RedditPostAnalyser'
 };
 
 const context_listener = (info, tab) => {
     if (info.menuItemId in actions) {
         tabs_api.create({
             url: actions[info.menuItemId]
-        });
+        })
+      }
+    else
+    {
+      tabs_api.create({url: "src/ui/modal.html"});
     }
-};
+  };
 const context_defs = [{
         id: 'import',
         type: 'normal',

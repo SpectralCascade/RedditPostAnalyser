@@ -8,7 +8,7 @@ function parseJSON(data) {
   }
   else
   {
-    chrome.tabs.create({url: 'src/ui/error.html'});
+    chrome.tabs.create({url: 'src/ui/modal.html'});
   }
 }
 
