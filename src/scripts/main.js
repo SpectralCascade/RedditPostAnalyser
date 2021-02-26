@@ -8,7 +8,10 @@ function parseJSON(data) {
   }
   else
   {
-    chrome.tabs.create({url: 'src/ui/modal.html'});
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {action: "Popup"}, function(response) {
+      });
+    });
   }
 }
 

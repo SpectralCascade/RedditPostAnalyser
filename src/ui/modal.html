@@ -5,13 +5,12 @@
   <meta charset="UTF-8">
   <title>Popup</title>
   <link rel="stylesheet" href="modal.css">
-  <script src = "modal.js"> </script>
 </head>
 
 <body>
   <div id="Modal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="window.close()">&times;</span>
+      <!--<span class="close" onclick="window.close()">&times;</span>-->
       <p class="Top">You are not currently on a reddit page</p>
       <p class="Mid">
       Navigate to a reddit page and left click the extension icon in the toolbar to analyse it! Alternatively, the import json button can be found below.
@@ -19,8 +18,8 @@
       <form method="post" id = "submitform" class = "form" enctype="multipart/form-data">
       <label for="JSON"> Import JSON:</label>
       <input type="file" id="JSON" accept=".json" >
-      <input type="submit" value="Process JSON" class = "type1" onclick = "ImportJSON()"
       </form>
+      <script src = "modal.js" type="text/javascript" > </script>
       <br>
       <a
       href="https://github.com/SpectralCascade/RedditPostAnalyser"

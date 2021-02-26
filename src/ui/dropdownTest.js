@@ -58,4 +58,3 @@ var currentChart;
 
  $('#chartType').on('change', updateChart)
  updateChart();
- 

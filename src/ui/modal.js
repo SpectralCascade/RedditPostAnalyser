@@ -1,17 +1,14 @@
-function ModalOpen() {
-  var modal = document.getElementById("Modal");
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      window.close();
-  }
-}
 
+document.getElementById("JSON").onchange = ImportJSON ;
+document.getElementById("JSON").onclick = function() {
+  this.value = null;
 }
-
 
 function ImportJSON() {
-  var localdata = document.getElementById("JSON").value;
-  localdata = process_raw(localdata);
-  localStorage.setItem("redditDataJSON", localdata);
-  chrome.tabs.create({url: 'src/ui/output.html'});
+  var reader = new FileReader();
+  reader.readAsText(this.files[0]);
+  reader.onload = function() {
+    localStorage.setItem("redditDataJSON", reader.result);
+    chrome.tabs.create({url: 'src/ui/output.html'});
+  }
 }
