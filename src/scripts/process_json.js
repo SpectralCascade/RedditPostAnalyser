@@ -8,7 +8,8 @@ if (typeof XMLHttpRequest === 'undefined') {
 
 function download_raw(url, parseDataCallback) {
     var domain = new URL(url).hostname;
-    if (domain === "reddit.com" && url.contains("/comments/"))
+    // TODO: edge case handling
+    if (String(domain).includes("reddit.com") && url.includes("/comments/"))
     {
         let mainurl = url + '.json';
 
