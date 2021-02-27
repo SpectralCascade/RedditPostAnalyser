@@ -14,6 +14,7 @@ function Popup() {
     iFrame.style.zIndex = 9999999;
     iFrame.style.display = "Block";
     iFrame.style.right = 0;
+    iFrame.style.top = 0;
     iFrame.style.borderWidth = 0;
 
     document.body.insertBefore (iFrame, document.body.firstChild);

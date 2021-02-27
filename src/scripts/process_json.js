@@ -7,23 +7,38 @@ if (typeof XMLHttpRequest === 'undefined') {
 }
 
 function download_raw(url, parseDataCallback) {
-    let mainurl = url + '.json';
+    var domain = new URL(url).hostname;
+    if (domain === "reddit.com" && url.contains("/comments/"))
+    {
+        let mainurl = url + '.json';
 
-    var xhttp = new XMLHttpRequest();
+        var xhttp = new XMLHttpRequest();
 
-    xhttp.open("GET", mainurl, asyncRequest);
-    xhttp.setRequestHeader("Content-Type", "text/plain");
+        xhttp.open("GET", mainurl, asyncRequest);
+        xhttp.setRequestHeader("Content-Type", "text/plain");
 
-    xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4) {
-            if (xhttp.status == 200) {
-                parseDataCallback(xhttp.responseText);
-            } else {
-                parseDataCallback(null);
+        xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4) {
+                if (xhttp.status == 200) {
+                    parseDataCallback(xhttp.responseText);
+                } else {
+                    parseDataCallback(null);
+                }
             }
-        }
-    };
-    xhttp.send();
+        };
+        xhttp.send();
+    } else {
+        // Webpage isn't a reddit post
+        parseDataCallback(null);
+    }
+}
+
+function extract_urls(raw_text) {
+    urls = [];
+    
+    
+    
+    return urls;
 }
 
 function process_links(data, processed) {
@@ -150,7 +165,7 @@ function recursiveChild (processed, children) {
         }
          //processing
         if (children[i].data.controversiality > 0){
-        processed.contCount++;
+            processed.contCount++;
         }
     
     }
