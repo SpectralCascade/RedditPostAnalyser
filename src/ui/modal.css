@@ -17,41 +17,25 @@
   padding: 20px;
   border: 1px solid #888;
   border-radius: 5px;
+  font-size: 12px;
+  font-family: verdana;
 }
 
 /* The Close Button */
-.close {
+.rpa_modal_close {
   color: #aaa;
   float: right;
   font-size: 28px;
   font-weight: bold;
 }
 
-.close:hover,
-.close:focus {
+.rpa_modal_close:hover,
+.rpa_modal_close:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;
 }
 
-
-.Top {
-  font-size: 25px;
-  font-weight: bold;
-  font-family: arial;
-  text-transform: uppercase ;
-  color: red;
-}
-
-.Mid {
-  font-family: arial;
-}
-
-.form {
-  font-family: verdana;
-  font-size: 12px;
-}
-
-.type2 {
+.rpa_modal_info_button {
   color:blue;
 }

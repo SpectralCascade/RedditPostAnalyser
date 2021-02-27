@@ -4,6 +4,13 @@ document.getElementById("JSON").onclick = function() {
   this.value = null;
 }
 
+var closeButton = document.getElementById("rpa_modal_close_button");
+
+closeButton.onclick = function() {
+    // Send message to tab
+    parent.postMessage('_rpa_close_popup', '*');
+};
+
 function ImportJSON() {
   var reader = new FileReader();
   reader.readAsText(this.files[0]);

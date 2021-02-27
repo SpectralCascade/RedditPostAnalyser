@@ -8,11 +8,10 @@
 </head>
 
 <body>
-  <div id="Modal" class="rpa_modal">
+  <div id="rpa_modal_id" class="rpa_modal">
     <div class="rpa_modal-content">
-      <p class="Mid">
-      Navigate to a reddit post and left click the extension icon in the toolbar to analyse it, or import a pre-processed post from JSON for analysis.
-      </p>
+      <span id="rpa_modal_close_button" class="rpa_modal_close">&times;</span>
+      <p>Navigate to a reddit post and left click the extension icon in the toolbar to analyse it, or import a pre-processed post from JSON for analysis.</p>
       <form method="post" id = "submitform" class = "form" enctype="multipart/form-data">
       <label for="JSON">Import JSON:</label>
       <input type="file" id="JSON" accept=".json" >
@@ -21,7 +20,7 @@
       <br>
       <a
       href="https://github.com/SpectralCascade/RedditPostAnalyser"
-      <button type="button" id="Git" class="type2">Learn more</button>
+      <button type="button" id="rpa_modal_info_button">Learn more</button>
       </a>
       </div>
 
