@@ -21,7 +21,7 @@
     ],
     "persistent": false
   },
-  "web_accessible_resources": ["src/ui/modal.html"],
+  "web_accessible_resources": ["src/ui/modal.html", "modal.html"],
   "content_security_policy":
     "script-src 'self' https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js; object-src 'self'",
   "browser_action": {},
