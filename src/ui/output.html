@@ -35,34 +35,23 @@
       </div>
     </div>
     <script src = "line.js"></script>
-<!--
-    <canvas id="myChart"></canvas>
-    <select id="chartType">
-        <option value="line">Line</option>
-        <option value="pie">Pie</option>
-    </select>
 
-    <script src = "dropdownTest.js"></script>
--->
-    <br />
-    <div id="text-holder">
-
-   </div>
-   <br />
-   <a id = "link">
-      <select id="chartType">
-          <option value="line">Line</option>
-          <option value="pie">Pie</option>
+    <label>Choose a graph:
+      <select class="charts" name="ice-cream" id="chartSelect">
+        <option value="">Select One</option>
+        <option value="pie">pie</option>
+        <option value="line">line</option>
       </select>
-    </a>
+    </label>
+    <div class="result"></div>
 
     <div class="container">
       <div>
-        <h2 style=\"font-size: 24pt">Line Chart</h2>
+        <h2 style=\"font-size: 24pt">Chart</h2>
         <canvas id="test" width="900" height="400"></canvas>
       </div>
     </div>
-    <script src="test.js"></script>
+    <script src="dropdown.js"></script>
 
     <p id='test'></p>
     <a href="https://github.com/SpectralCascade/RedditPostAnalyser">Learn more</a>
