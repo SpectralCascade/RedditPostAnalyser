@@ -35,6 +35,23 @@ function download_raw_duplicates(url, parseDataCallback){
   }
 
 
+function handle_http_response(http_request, callback) {
+    if (http_request.readyState == 4) {
+        if (http_request.status == 200) {
+            callback(http_request.responseText);
+        } else if (http_request.status >= 301 && http_request.status <= 308) {
+            // Redirect, make a new request
+            var xhttpr = new XMLHttpRequest();
+            xhttpr.open("GET", http_request.getResponseHeader("Location"), asyncRequest);
+            xhttpr.onreadystatechange = function() { handle_http_response(xhttpr, callback); };
+            xhttpr.send();
+        } else {
+            console.log("ERROR: xhttp status = " + http_request.status);
+            callback(null);
+        }
+    }
+}
+
 function download_raw(url, parseDataCallback) {
     var domain = new URL(url).hostname;
     // TODO: edge case handling
@@ -47,17 +64,10 @@ function download_raw(url, parseDataCallback) {
         xhttp.open("GET", mainurl, asyncRequest);
         xhttp.setRequestHeader("Content-Type", "text/plain");
 
-        xhttp.onreadystatechange = function() {
-            if (xhttp.readyState == 4) {
-                if (xhttp.status == 200) {
-                    parseDataCallback(xhttp.responseText);
-                } else {
-                    parseDataCallback(null);
-                }
-            }
-        };
+        xhttp.onreadystatechange = function() { handle_http_response(xhttp, parseDataCallback); };
         xhttp.send();
     } else {
+        console.log("ERROR: Webpage is not a Reddit JSON source.");
         // Webpage isn't a reddit post
         parseDataCallback(null);
     }
@@ -187,17 +197,41 @@ function process_links(data, processed) {
 
 }
 
+var totalCommentsProcessed = 0;
+
 function recursiveChild (processed, children) {
 
-    for( var i=0; i <children.length; i++){
-        if(Array.isArray(children[i].data.replies)) {
-            recursiveChild(processed, children[i].data.replies.data.children);
-        }
-         //processing
-        if (children[i].data.controversiality > 0){
-            processed.contCount++;
-        }
+    for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
+        if (children[i].kind === "more") {
+            // Must download more comments
+            for (var j = 0; j < children[i].data.children.length; j++) {
+                //console.log("Recursively downloading more comments (" + children[i].data.children[j] + ")...");
+                download_raw(processed.url + children[i].data.children[j], function(raw) {
+                    if (raw != null) {
+                        // Add to the current JSON
+                        console.log("downloading more comments, processed " + totalCommentsProcessed + "/" + processed.numComments);
+                        children[i].data.children[j] = (JSON.parse(raw))[1];
+                    } else {
+                        console.log("failed to download more comments from " + processed.url + children[i].data.children[j] + "/");
+                    }
+                });
+            }
+        } else {
+            if (children[i].data.replies != null && children[i].data.replies != "") {
+                recursiveChild(processed, children[i].data.replies.data.children);
+            }
+            // processing
+            if (children[i].data.controversiality > 0){
+                processed.contCount++;
+            }
+            processed.comments.push({
+                "timestamp" : children[i].data.created_utc,
+                "controversial" : children[i].data.controversiality > 0
+            });
+            console.log("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
 
+            totalCommentsProcessed += 1;
+        }
     }
 
 }
@@ -205,20 +239,25 @@ function recursiveChild (processed, children) {
 
 function process_meta(data, processed) {
     //post
-    processed["contCount"]=0;
-    processed.date = new Date();
-    processed.postDate = data[0].data.children[0].data.created_utc;
-    processed.title = data[0].data.children[0].data.title;
-    processed.upVotes =  data[0].data.children[0].data.ups;
-    processed.downEst = Math.round(((processed.upVotes / (data[0].data.children[0].data.upvote_ratio * 100)) * 100) - processed.upVotes);
-    processed.numComments = data[0].data.children[0].data.num_comments;
-    processed.totalAwards = data[0].data.children[0].data.total_awards_received;
-    processed.crossPosts = data[0].data.children[0].data.num_crossposts;
+    totalCommentsProcessed = 0;
+    processed["contCount"]=0; // num controversial comments
+    processed.date = new Date(); // date now
+    processed.subreddit = data[0].data.children[0].data.subreddit; // subreddit
+    processed.url = "https://reddit.com" + data[0].data.children[0].data.permalink; // original post url
+    processed.postDate = data[0].data.children[0].data.created_utc; // date post created
+    processed.title = data[0].data.children[0].data.title; // title
+    processed.upVotes =  data[0].data.children[0].data.ups; // net upvotes
+    processed.downEst = Math.round(((processed.upVotes / (data[0].data.children[0].data.upvote_ratio * 100)) * 100) - processed.upVotes); // estimated downvotes
+    processed.numComments = data[0].data.children[0].data.num_comments; // num comments
+    processed.totalAwards = data[0].data.children[0].data.total_awards_received; // num awards
+    processed.crossPosts = data[0].data.children[0].data.num_crossposts; // num crossposts
     //processed.count = recursiveChild(data[1].data.controversiality);
     //comments - in progress :)
     //processed.controversiality = data[1].data.children[0].data.controversiality;
     //processed.subreddit = data[1].data.children[0].data.subreddit;
+    processed.comments = [];
     recursiveChild(processed, data[1].data.children);
+    console.log("total comments = " + processed.comments.length + " | total processed = " + totalCommentsProcessed);
 }
 
 function process_raw(raw_json) {
