@@ -5,6 +5,33 @@ if (typeof XMLHttpRequest === 'undefined') {
     // Node standalone code requires response before continuing to next post URL
     asyncRequest = false;
 }
+function download_raw_duplicates(url, parseDataCallback){
+  var domain = new URL(url).hostname;
+  // TODO: edge case handling
+  if (String(domain).includes("reddit.com") && url.includes("/comments/"))
+  {
+      url = url.replace("/comments/", "/duplicates/");
+      let duplicate_url = url + '.json';
+
+      var xhttp = new XMLHttpRequest();
+
+      xhttp.open("GET", duplicate_url, true);
+      xhttp.setRequestHeader("Content-Type", "*/*");
+
+      xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4) {
+          if (xhttp.status == 200) {
+            data = xhttp.responseText;
+            localStorage.setItem("raw_duplicate", data);
+          }
+
+        }
+      };
+      xhttp.send();
+      }
+
+  }
+
 
 function download_raw(url, parseDataCallback) {
     var domain = new URL(url).hostname;
@@ -36,9 +63,9 @@ function download_raw(url, parseDataCallback) {
 
 function extract_urls(raw_text) {
     urls = [];
-    
-    
-    
+
+
+
     return urls;
 }
 
@@ -102,7 +129,7 @@ function process_links(data, processed) {
     }
 
     console.log("Found links:\n" + String(postLinks));
-    
+
     var query = "http://api.pushshift.io/reddit/submission/search/?q="
 
     rawPostLinks = [];
@@ -111,7 +138,7 @@ function process_links(data, processed) {
         rawPostLinks.push(postLinks[i]);
         postLinks[i] = encodeURIComponent(postLinks[i]);
         console.log("\nSearching Reddit for occurrence of link:\n" + postLinks[i]);
-        
+
         var xhttp = new XMLHttpRequest();
 
         // TODO: try and make async queries to pushshift?
@@ -124,7 +151,7 @@ function process_links(data, processed) {
                     if (xhttp.responseText != null) {
                         results = JSON.parse(xhttp.responseText);
                         //console.log(results.data[0].full_link);
-                        
+
                         // Metadata for each processed link
                         processed.postLinks.push({
                             "url" : rawPostLinks[i],
@@ -155,11 +182,11 @@ function process_links(data, processed) {
         xhttp.send();
 
     }
-        
+
 }
 
 function recursiveChild (processed, children) {
-    
+
     for( var i=0; i <children.length; i++){
         if(Array.isArray(children[i].data.replies)) {
             recursiveChild(processed, children[i].data.replies.data.children);
@@ -168,7 +195,7 @@ function recursiveChild (processed, children) {
         if (children[i].data.controversiality > 0){
             processed.contCount++;
         }
-    
+
     }
 
 }
@@ -197,14 +224,14 @@ function process_raw(raw_json) {
     var processed = {};
 
     if (data.length > 0) {
-        
+
         process_meta(data, processed);
-        
+
         process_links(data, processed);
 
     }
-    
-    
+
+
     return JSON.stringify(processed);
 }
 

@@ -1,8 +1,9 @@
 var data = localStorage.getItem("redditDataJSON");
-
+var duplicate = localStorage.getItem("raw_duplicate");
 // Parse the JSON data
 var processed = JSON.parse(data);
 var date = new Date();
+//document.write("<p>" + duplicate + "</p>");    //For displaying raw JSON for counting brackets
 //document.write("<h1>Subreddit: " + obj[0].data.children[0].data.subreddit + "</h1>");
 document.write("<p style=\"font-size: 24pt;\">Analysis of <strong>" + processed.title + "</strong></p>");
 document.write("<h3>Generated on " + date + "</h3>");
