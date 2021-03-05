@@ -5,6 +5,8 @@ if (typeof XMLHttpRequest === 'undefined') {
     // Node standalone code requires response before continuing to next post URL
     asyncRequest = false;
 }
+
+// TODO: refactor this, reuse download_raw() instead!
 function download_raw_duplicates(url, parseDataCallback){
   var domain = new URL(url).hostname;
   // TODO: edge case handling
@@ -36,7 +38,7 @@ function download_raw_duplicates(url, parseDataCallback){
 function download_raw(url, parseDataCallback) {
     var domain = new URL(url).hostname;
     // TODO: edge case handling
-    if (String(domain).includes("reddit.com") && url.includes("/comments/"))
+    if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/")))
     {
         let mainurl = url + '.json';
 
