@@ -55,7 +55,7 @@ function handle_http_response(http_request, callback) {
 function download_raw(url, parseDataCallback) {
     var domain = new URL(url).hostname;
     // TODO: edge case handling
-    if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/")))
+    if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")))
     {
         let mainurl = url + '.json';
 
@@ -224,10 +224,12 @@ function recursiveChild (processed, children) {
             if (children[i].data.controversiality > 0){
                 processed.contCount++;
             }
+            
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
                 "controversial" : children[i].data.controversiality > 0
             });
+            
             console.log("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
 
             totalCommentsProcessed += 1;
@@ -240,6 +242,7 @@ function recursiveChild (processed, children) {
 function process_meta(data, processed) {
     //post
     totalCommentsProcessed = 0;
+    processed.common_subreddits = {};
     processed["contCount"]=0; // num controversial comments
     processed.date = new Date(); // date now
     processed.subreddit = data[0].data.children[0].data.subreddit; // subreddit
