@@ -1,4 +1,5 @@
 var mainTab = null;
+let placeholder = {};
 
 function parseJSON(data) {
     if (data != null)
@@ -19,7 +20,6 @@ function parseJSON(data) {
 function main(tab) {
     mainTab = tab;
     download_raw(tab.url, parseJSON);
-    download_raw_duplicates(tab.url, parseJSON)
 }
 
 chrome.browserAction.onClicked.addListener(main);

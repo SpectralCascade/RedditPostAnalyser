@@ -1,4 +1,4 @@
-var asyncRequest = true;
+var asyncRequest = false;
 
 if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
@@ -6,33 +6,7 @@ if (typeof XMLHttpRequest === 'undefined') {
     asyncRequest = false;
 }
 
-// TODO: refactor this, reuse download_raw() instead!
-function download_raw_duplicates(url, parseDataCallback){
-  var domain = new URL(url).hostname;
-  // TODO: edge case handling
-  if (String(domain).includes("reddit.com") && url.includes("/comments/"))
-  {
-      url = url.replace("/comments/", "/duplicates/");
-      let duplicate_url = url + '.json';
 
-      var xhttp = new XMLHttpRequest();
-
-      xhttp.open("GET", duplicate_url, true);
-      xhttp.setRequestHeader("Content-Type", "*/*");
-
-      xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4) {
-          if (xhttp.status == 200) {
-            data = xhttp.responseText;
-            localStorage.setItem("raw_duplicate", data);
-          }
-
-        }
-      };
-      xhttp.send();
-      }
-
-  }
 
 
 function handle_http_response(http_request, callback) {
@@ -44,6 +18,7 @@ function handle_http_response(http_request, callback) {
             var xhttpr = new XMLHttpRequest();
             xhttpr.open("GET", http_request.getResponseHeader("Location"), asyncRequest);
             xhttpr.onreadystatechange = function() { handle_http_response(xhttpr, callback); };
+            console.log("http response " + http_request.status);
             xhttpr.send();
         } else {
             console.log("ERROR: xhttp status = " + http_request.status);
@@ -52,25 +27,29 @@ function handle_http_response(http_request, callback) {
     }
 }
 
+
 function download_raw(url, parseDataCallback) {
+    url = encodeURI(url);
     var domain = new URL(url).hostname;
     // TODO: edge case handling
-    if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")))
-    {
-        let mainurl = url + '.json';
 
-        var xhttp = new XMLHttpRequest();
+        if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")))
+        {
+            let mainurl = url + '.json';
+            var xhttp = new XMLHttpRequest();
+            xhttp.open("GET", mainurl, asyncRequest);
 
-        xhttp.open("GET", mainurl, asyncRequest);
-        xhttp.setRequestHeader("Content-Type", "text/plain");
+            xhttp.setRequestHeader("Content-Type", "text/plain");
 
-        xhttp.onreadystatechange = function() { handle_http_response(xhttp, parseDataCallback); };
-        xhttp.send();
-    } else {
-        console.log("ERROR: Webpage is not a Reddit JSON source.");
-        // Webpage isn't a reddit post
-        parseDataCallback(null);
-    }
+            xhttp.onreadystatechange = function() { handle_http_response(xhttp, parseDataCallback); };
+            xhttp.send();
+        } else {
+            console.log("ERROR: Webpage is not a Reddit JSON source.");
+            // Webpage isn't a reddit post
+            parseDataCallback(null);
+        }
+
+
 }
 
 function extract_urls(raw_text) {
@@ -224,12 +203,10 @@ function recursiveChild (processed, children) {
             if (children[i].data.controversiality > 0){
                 processed.contCount++;
             }
-            
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
                 "controversial" : children[i].data.controversiality > 0
             });
-            
             console.log("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
 
             totalCommentsProcessed += 1;
@@ -242,7 +219,6 @@ function recursiveChild (processed, children) {
 function process_meta(data, processed) {
     //post
     totalCommentsProcessed = 0;
-    processed.common_subreddits = {};
     processed["contCount"]=0; // num controversial comments
     processed.date = new Date(); // date now
     processed.subreddit = data[0].data.children[0].data.subreddit; // subreddit
@@ -263,7 +239,37 @@ function process_meta(data, processed) {
     console.log("total comments = " + processed.comments.length + " | total processed = " + totalCommentsProcessed);
 }
 
-function process_raw(raw_json) {
+function process_duplicate_links(data, processed){
+  let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
+  download_raw(duplicate_url, function(raw_json){
+    if (raw_json == null){
+      return;
+    }
+    data = JSON.parse(raw_json);
+    processed.duplicates = {};
+    processed.duplicates.url = [];
+    processed.duplicates.data = [];
+    c = 0;
+    for (var i = 0; i < data[1].data.children.length; i++){
+      if (processed.duplicates.url[i] == data[1].data.children[i].data.permalink){
+        // Nothing needs to go here
+      } else {
+        processed.duplicates.url.push(data[1].data.children[i].data.permalink);
+
+        c++;
+      }
+    }
+
+  });
+  for (var i = 0; i < processed.duplicates.url.length; i++){
+    var repost_url = ("https://www.reddit.com" + processed.duplicates.url[i]);
+    download_raw(repost_url, function(duplicate_json){
+      processed.duplicates.data.push(JSON.parse(process_raw(duplicate_json, false)));
+    });
+  }
+}
+
+function process_raw(raw_json, process_duplicates = true) {
     var data = JSON.parse(raw_json);
     var processed = {};
 
@@ -272,13 +278,16 @@ function process_raw(raw_json) {
         process_meta(data, processed);
 
         process_links(data, processed);
-
+        if (process_duplicates){
+          process_duplicate_links(data, processed);
+        }
     }
 
 
     return JSON.stringify(processed);
 }
 
+repost_json = [];
 if (typeof module !== 'undefined') {
     module.exports = { download_raw, process_raw };
 }

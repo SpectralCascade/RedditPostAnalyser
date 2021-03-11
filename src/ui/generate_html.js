@@ -1,9 +1,19 @@
 var data = localStorage.getItem("redditDataJSON");
-var duplicate = localStorage.getItem("raw_duplicate");
+//var duplicate = localStorage.getItem("raw_duplicate");
+//var holder = localStorage.getItem("test1");
+//var holder2 = localStorage.getItem("test2");
+//holder = JSON.parse(holder);
 // Parse the JSON data
 var processed = JSON.parse(data);
+//var duplicate_processed = JSON.parse(duplicate);
 var date = new Date();
-//document.write("<p>" + duplicate + "</p>");    //For displaying raw JSON for counting brackets
+0//document.write("<p>" + holder2.url + "</p>");    //For displaying raw JSON for counting brackets
+
+//for (i =0; i < processed.duplicates.url.length; i++){
+//  document.write("<p>" + processed.duplicates.url[i] + "</p>");    //For displaying JSON
+//  document.write("<p>" + processed.duplicates.data[i].url + "</p>");    //For displaying JSON
+//}
+
 //document.write("<h1>Subreddit: " + obj[0].data.children[0].data.subreddit + "</h1>");
 document.write("<p style=\"font-size: 24pt;\">Analysis of <strong>" + processed.title + "</strong></p>");
 document.write("<h3>Generated on " + date + "</h3>");
