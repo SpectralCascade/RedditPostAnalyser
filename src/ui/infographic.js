@@ -1,6 +1,9 @@
 
 export class Infographic {
-    constructor(){}
+    constructor() {
+        this.context = null;
+        this.chart = null;
+    }
     
     add(dropdown_option, chart_data) {
         data.push(chart_data);

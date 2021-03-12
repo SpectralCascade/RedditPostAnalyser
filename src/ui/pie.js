@@ -5,12 +5,12 @@ class Pie extends Infographic {
     super();
     var data = localStorage.getItem("redditDataJSON");
     var processed = JSON.parse(data);
-    label = ["Upvotes","Downvotes"];
+    var label = ["Upvotes","Downvotes"];
     var upvotes = processed.upVotes;
     var downvotes = processed.downEst;
     this.data = [upvotes,downvotes];
     this.context = document.getElementById("pie");
-    this.myPieChart = new Chart(this.context, {
+    this.chart = new Chart(this.context, {
       type: 'pie',
       data: {
         labels: label,
