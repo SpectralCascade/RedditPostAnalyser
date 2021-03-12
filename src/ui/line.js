@@ -2,8 +2,8 @@ import {Infographic} from './infographic.js';
 
 class LineChart extends Infographic
 {
-    constructor() {
-        super();
+    constructor(chart_id, title, width, height, data) {
+        super(chart_id, title, width, height, data);
         
         // Our labels along the x-axis
         this.years = [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050];
@@ -53,8 +53,18 @@ class LineChart extends Infographic
             ]
           }
         });
+        
+        this.populate = function (index) {
+            console.log("virtual method called!");
+        };
     }
-
+    
 }
 
-var line = new LineChart();
+var line = new LineChart(
+    "line",
+    "Line Chart",
+    900,
+    400,
+    [{ name: "Default" }]
+);

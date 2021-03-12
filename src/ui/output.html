@@ -12,48 +12,11 @@
     <br />
     <br />
 
-    <div class="container">
-        <div>
-            <h2 style=\"font-size: 24pt">Doughnut Chart</h2>
-            <canvas id="donut" width="900" height="400"></canvas>
-        </div>
+    <div id="all_charts">
+      <script src = "donut.js" type = "module"></script>
+      <script src = "pie.js" type = "module"></script>
+      <script src = "line.js" type="module"></script>
     </div>
-    <!--<script src = "doughnut.js"></script>*/-->
-
-    <script src = "donut.js" type = "module"></script>
-
-    <div class="container">
-      <div>
-          <h2 style=\"font-size: 24pt">Pie Chart</h2>
-          <canvas id="pie" width="900" height="400"></canvas>
-      </div>
-    </div>
-    <script src = "pie.js" type = "module"></script>
-
-    <div class="container">
-      <div>
-        <h2 style=\"font-size: 24pt">Example Line Chart</h2>
-        <canvas id="line" width="900" height="400"></canvas>
-      </div>
-    </div>
-    <script src = "line.js" type="module"></script>
-
-    <label>Choose a graph:
-      <select class="charts" name="ice-cream" id="chartSelect">
-        <option value="">Select One</option>
-        <option value="pie">pie</option>
-        <option value="line">line</option>
-      </select>
-    </label>
-    <div class="result"></div>
-
-    <div class="container">
-      <div>
-        <h2 style=\"font-size: 24pt">Chart</h2>
-        <canvas id="test" width="900" height="400"></canvas>
-      </div>
-    </div>
-    <script src="dropdown.js"></script>
 
     <p id='test'></p>
     <a href="https://github.com/SpectralCascade/RedditPostAnalyser">Learn more</a>

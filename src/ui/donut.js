@@ -2,8 +2,8 @@ import {Infographic} from './infographic.js';
 
 class DonutChart extends Infographic {
     
-	constructor() {
-        super();
+	constructor(chart_id, title, width, height, data) {
+        super(chart_id, title, width, height, data);
         
         var data = localStorage.getItem("redditDataJSON");
 
@@ -34,9 +34,18 @@ class DonutChart extends Infographic {
             ]}
         });
 
+        this.populate = function (index) {
+            console.log("virtual method called!");
+        };
 
 	}
 
 }
-var donut = new DonutChart();
 
+var donut = new DonutChart(
+    "donut",
+    "Donut Chart",
+    900,
+    400,
+    [{ name: "Link Occurrences" }, { name: "something else" }]
+);
