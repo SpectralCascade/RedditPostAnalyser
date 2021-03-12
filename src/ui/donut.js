@@ -42,7 +42,7 @@ var donut = new DonutChart(
             ]
         },
         {
-            name: "something else"
+            name: "Loading animation"
         }
     ]
 );

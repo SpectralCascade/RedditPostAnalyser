@@ -8,7 +8,8 @@ export class Infographic {
         
         this.context = null;
         this.chart = null;
-            
+        this.updateAnimation = false;
+        
         this.typename = chartType;
         this.data = data;
         this.dropdowns = [];
@@ -70,7 +71,8 @@ export class Infographic {
     }
     
     populate(index) {
-        if (this.data[index].datasets.length > 0) {
+        if (this.data.length > 0 && this.data[index].datasets != null && this.data[index].datasets.length > 0) {
+            this.stopDrawing();
             this.chart = new Chart(this.context, {
                 type: this.typename,
                 data: {
@@ -89,27 +91,65 @@ export class Infographic {
     
     startDrawing() {
         // TODO: Check if data is being loaded. If so, show spinning wheel; otherwise show "No data available".
-        window.requestAnimationFrame(this.drawLoading);
+        var canvas = this.context.getContext("2d");
+        canvas.save();
+        this.updateAnimation = true;
+        var infographic = this;
+        window.requestAnimationFrame(function () { infographic.drawLoading(); });
+    }
+    
+    stopDrawing() {
+        this.updateAnimation = false;
     }
     
     drawLoading() {
         var canvas = this.context.getContext("2d");
+        var halfDim = { w: this.context.width / 2, h: this.context.height / 2 };
+
         canvas.globalCompositeOperation = 'destination-over';
-        canvas.clear();
-        canvas.fillStyle = 'rgba(0, 0, 0, 0.4)';
-        canvas.strokeStyle = 'rgba(0, 255, 255, 0.4)';
+        canvas.clearRect(0, 0, halfDim.w * 2, halfDim.h * 2);
+        canvas.fillStyle = 'rgba(0, 255, 255, 1)';
+        canvas.strokeStyle = 'rgba(200, 200, 200, 1)';
         canvas.save();
         
-        // Spinning dot(s)
-        var time = new Date();
+        var loadingSpinSpeed = 1;
+        var loadingDotRadius = 8;
+        var loadingWheelRadius = 32;
+        
+        // Loading wheel
+        var time = (new Date()).getMilliseconds();
+        var deltaTime = (time - this.lastTime) / 1000;
         for (var i = 0, count = 1; i < count; i++) {
-            canvas.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 6000) * time.getMilliseconds());
-            canvas.fillCircle(0, 0, 24);
+            var trans = {
+                x: halfDim.w - loadingWheelRadius - loadingDotRadius,
+                y: halfDim.h - loadingWheelRadius - loadingDotRadius
+            };
+            
+            
+            canvas.translate(trans.x, trans.y);
+            canvas.rotate((2 * Math.PI) * deltaTime * loadingSpinSpeed);
+            
+            // Draw spinny dot
+            canvas.beginPath();
+            canvas.arc(loadingWheelRadius, 0, loadingDotRadius, 0, 2 * Math.PI);
+            canvas.fill();
+            canvas.translate(-trans.x, -trans.y);
+            
+            
+            // Draw wheel
+            canvas.beginPath();
+            canvas.arc(trans.x, trans.y, loadingWheelRadius, 0, 2 * Math.PI);
+            canvas.lineWidth = loadingDotRadius * 2;
+            canvas.stroke();
         }
-        canvas.save();
-        canvas.restore();
+        this.lastTime = time;
         
-        window.requestAnimationFrame(this.drawLoading);
+        if (this.updateAnimation) {
+            var infographic = this;
+            window.requestAnimationFrame(function () { infographic.drawLoading(); });
+        } else {
+            canvas.restore();
+        }
     }
     
     drawEmpty() {
