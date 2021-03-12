@@ -7,7 +7,7 @@ var data = localStorage.getItem("redditDataJSON");
 var processed = JSON.parse(data);
 //var duplicate_processed = JSON.parse(duplicate);
 var date = new Date();
-0//document.write("<p>" + holder2.url + "</p>");    //For displaying raw JSON for counting brackets
+//document.write("<p>" + holder2.url + "</p>");    //For displaying raw JSON for counting brackets
 
 //for (i =0; i < processed.duplicates.url.length; i++){
 //  document.write("<p>" + processed.duplicates.url[i] + "</p>");    //For displaying JSON
