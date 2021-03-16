@@ -4,6 +4,7 @@ body {
   text-align: center;
   display: flex;
   flex-direction: column;
+  background-color: white;
 }
 
 .container {
@@ -15,11 +16,26 @@ h1 {
   text-align: center;
 }
 
-#all_charts{
+.chartjs-render-monitor{
+}
+#info_and_line{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-#line{
+#info{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
+}
+
+
+#title_date{
+  background-color: #ff6314;
+  color: #ffffff;
 }
 
 #pieDonut{

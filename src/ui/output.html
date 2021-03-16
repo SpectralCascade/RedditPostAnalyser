@@ -7,8 +7,9 @@
     <script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
   </head>
   <body>
-    <script src="generate_html.js"></script>
 
+    <script src="generate_title.js"></script>
+    <script src="generate_links.js"></script>
     <br />
     <br />
 
@@ -17,7 +18,11 @@
       <script src = "donut.js" type = "module"></script>
       <script src = "pie.js" type = "module"></script>
     </div>
-    <div id = "line_chart"></div>
+
+    <div id = "info_and_line">
+      <script src="generate_info.js"></script>
+      <div id = "line_chart"></div>
+    </div>
     <div id = "pieDonut">
       <div id = "donut_chart"></div>
       <div id = "pie_chart"></div>

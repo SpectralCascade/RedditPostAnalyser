@@ -1,11 +1,11 @@
 import {Infographic} from './infographic.js';
 
 class LineChart extends Infographic {
-    
+
     constructor(chart_id, title, width, height, data) {
         super(chart_id, 'line', title, width, height, data);
     }
-    
+
 }
 
 var line = new LineChart(
