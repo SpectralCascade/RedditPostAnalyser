@@ -2,6 +2,8 @@ body {
   margin: 0px;
   padding: 0px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
@@ -14,25 +16,27 @@ h1 {
 }
 
 #all_charts{
-  display: flex;
-  flex: auto;
-  flex-direction: column;
 }
 
-#lineCss {
+#line{
 
 }
 
 #pieDonut{
   display: flex;
   flex-direction: row;
-  margin: 0;
-  
+  flex-wrap: wrap;
+  justify-content: center;
+
 }
-#pieCss{
-  display: flex;
+#pie{
+
 }
 
-#donutCss{
-  display: flex;
+#donut{
+
+}
+
+#chartSelect{
+  align: center;
 }
