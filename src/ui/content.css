@@ -12,3 +12,27 @@ body {
 h1 {
   text-align: center;
 }
+
+#all_charts{
+  display: flex;
+  flex: auto;
+  flex-direction: column;
+}
+
+#lineCss {
+
+}
+
+#pieDonut{
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  
+}
+#pieCss{
+  display: flex;
+}
+
+#donutCss{
+  display: flex;
+}
