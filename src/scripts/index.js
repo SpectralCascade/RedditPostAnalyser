@@ -10,17 +10,22 @@ const path = require('path');
 
 var outputData = [];
 var outputDir = "";
-var urls = []
+var urls = [];
+var finishedProcessing = false;
 
 function receiveJSON(data) {
     // Process data
-    processed = processor.process_raw(data);
-    if (processed != null) {
-        outputData.push(processed);
-    } else {
-        console.log("Failed to retrieve JSON data.");
-        outputData.push(null);
-    }
+    processor.process_raw(data, function(stage, processed) {
+        console.log("Processor completed stage: " + stage);
+        if (stage === "FINISHED") {
+            outputData.push(processed);
+            console.log("Finished processing.");
+            finishedProcessing = true;
+        } else if (stage === "ERROR") {
+            console.log("Failed to retrieve JSON data.");
+            outputData.push(null);
+        }
+    });
 }
 
 function saveOutputData() {
@@ -51,6 +56,11 @@ if (process.argv.length > 2) {
             // Load JSON from URL
             var originalLength = outputData.length;
             processor.download_raw(process.argv[i], receiveJSON);
+            
+            // For some reason the program hangs during this bit. Either we're doing async stuff wrong or some state setting logic is incorrect.
+            /*while (xhttp.readyState < 4 && !finishedProcessing) {
+                // Wait
+            }*/
             
             // Track successfully processed URLs
             urls.push(process.argv[i]);

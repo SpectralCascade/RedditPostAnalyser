@@ -3,53 +3,54 @@ var asyncRequest = false;
 if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
     // Node standalone code requires response before continuing to next post URL
-    asyncRequest = false;
+    asyncRequest = true;
 }
-
-
-
 
 function handle_http_response(http_request, callback) {
     if (http_request.readyState == 4) {
         if (http_request.status == 200) {
             callback(http_request.responseText);
+            http_request.readyState = 5;
         } else if (http_request.status >= 301 && http_request.status <= 308) {
             // Redirect, make a new request
             var xhttpr = new XMLHttpRequest();
             xhttpr.open("GET", http_request.getResponseHeader("Location"), asyncRequest);
             xhttpr.onreadystatechange = function() { handle_http_response(xhttpr, callback); };
-            console.log("http response " + http_request.status);
+            console.log("HTTP response " + http_request.status);
             xhttpr.send();
+            http_request.new_redirect_request = xhttpr;
         } else {
             console.log("ERROR: xhttp status = " + http_request.status);
             callback(null);
+            http_request.readyState = 5;
         }
     }
 }
 
-
+// Asynchronous download function.
 function download_raw(url, parseDataCallback) {
     url = encodeURI(url);
     var domain = new URL(url).hostname;
     // TODO: edge case handling
+    if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")))
+    {
+        let mainurl = url + '.json';
+        var xhttp = new XMLHttpRequest();
+        
+        xhttp.open("GET", mainurl, asyncRequest);
 
-        if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")))
-        {
-            let mainurl = url + '.json';
-            var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", mainurl, asyncRequest);
+        xhttp.setRequestHeader("Content-Type", "text/plain");
 
-            xhttp.setRequestHeader("Content-Type", "text/plain");
-
-            xhttp.onreadystatechange = function() { handle_http_response(xhttp, parseDataCallback); };
-            xhttp.send();
-        } else {
-            console.log("ERROR: Webpage is not a Reddit JSON source.");
-            // Webpage isn't a reddit post
-            parseDataCallback(null);
-        }
-
-
+        xhttp.onreadystatechange = function() { handle_http_response(xhttp, parseDataCallback); };
+        console.log("Sending HTTP request to " + url);
+        xhttp.send();
+        
+        return xhttp;
+    }
+    // Webpage isn't a reddit post
+    console.log("ERROR: Webpage is not a Reddit JSON source.");
+    parseDataCallback(null);
+    return null;
 }
 
 function extract_urls(raw_text) {
@@ -178,31 +179,27 @@ function process_links(data, processed) {
 
 var totalCommentsProcessed = 0;
 
-function recursiveChild (processed, children) {
+function recurseComments(processed, children, moreComments) {
 
+    if (moreComments == null) {
+        moreComments = [];
+    }
+    
     for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
         if (children[i].kind === "more") {
-            // Must download more comments
             for (var j = 0; j < children[i].data.children.length; j++) {
-                //console.log("Recursively downloading more comments (" + children[i].data.children[j] + ")...");
-                download_raw(processed.url + children[i].data.children[j], function(raw) {
-                    if (raw != null) {
-                        // Add to the current JSON
-                        console.log("downloading more comments, processed " + totalCommentsProcessed + "/" + processed.numComments);
-                        children[i].data.children[j] = (JSON.parse(raw))[1];
-                    } else {
-                        console.log("failed to download more comments from " + processed.url + children[i].data.children[j] + "/");
-                    }
-                });
+                moreComments.push(children[i].data.children[j]);
             }
         } else {
             if (children[i].data.replies != null && children[i].data.replies != "") {
-                recursiveChild(processed, children[i].data.replies.data.children);
+                recurseComments(processed, children[i].data.replies.data.children, moreComments);
             }
+            
             // processing
-            if (children[i].data.controversiality > 0){
+            if (children[i].data.controversiality > 0) {
                 processed.contCount++;
             }
+            
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
                 "controversial" : children[i].data.controversiality > 0
@@ -210,6 +207,46 @@ function recursiveChild (processed, children) {
             console.log("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
 
             totalCommentsProcessed += 1;
+        }
+    }
+    console.log("downloading more comments, processed " + totalCommentsProcessed + "/" + processed.numComments);
+    
+    // Download and process further comments
+    var requests = [];
+    for (var i = 0; i < moreComments.length; i++) {
+        //console.log("Recursively downloading more comments (" + moreComments[i].data.children[j] + ")...");
+        requests.push(
+            download_raw(processed.url + moreComments[i], function(raw) {
+                if (raw != null) {
+                    // Add to the current JSON
+                    recurseComments(processed, (JSON.parse(raw))[1], null);
+                } else {
+                    console.log("failed to download more comments from " + processed.url + moreComments[i] + "/");
+                }
+            })
+        );
+    }
+    
+    console.log("Requests in action, waiting for responses...");
+    
+    // Wait for requests to complete
+    var complete = 0;
+    for (var i = 0; true; i++) {
+        if (i >= requests.length) {
+            if (complete == requests.length) {
+                console.log("Requests complete, stopped waiting...");
+                break;
+            }
+            i = -1;
+            complete = 0;
+            continue;
+        }
+        
+        if (requests[i].readyState == 5) {
+            console.log("This little request is done...");
+            complete++;
+        } else if (requests[i].readyState == 4 && requests[i].hasOwnProperty('new_redirect_request')) {
+            requests[i] = requests[i].new_redirect_request;
         }
     }
 
@@ -230,13 +267,7 @@ function process_meta(data, processed) {
     processed.numComments = data[0].data.children[0].data.num_comments; // num comments
     processed.totalAwards = data[0].data.children[0].data.total_awards_received; // num awards
     processed.crossPosts = data[0].data.children[0].data.num_crossposts; // num crossposts
-    //processed.count = recursiveChild(data[1].data.controversiality);
-    //comments - in progress :)
-    //processed.controversiality = data[1].data.children[0].data.controversiality;
-    //processed.subreddit = data[1].data.children[0].data.subreddit;
     processed.comments = [];
-    recursiveChild(processed, data[1].data.children);
-    console.log("total comments = " + processed.comments.length + " | total processed = " + totalCommentsProcessed);
 }
 
 function process_duplicate_links(data, processed){
@@ -269,22 +300,36 @@ function process_duplicate_links(data, processed){
   }
 }
 
-function process_raw(raw_json, process_duplicates = true) {
+function process_raw(raw_json, onStageComplete, process_duplicates = true) {
     var data = JSON.parse(raw_json);
     var processed = {};
 
     if (data.length > 0) {
 
+        // Main post data
         process_meta(data, processed);
+        onStageComplete("meta", processed);
+        
+        // Comments
+        recurseComments(processed, data[1].data.children, null);
+        console.log("total comments = " + processed.comments.length + " | total processed = " + totalCommentsProcessed);
 
-        process_links(data, processed);
-        if (process_duplicates){
-          process_duplicate_links(data, processed);
+        onStageComplete("comments", processed);
+
+        // Links
+        /*process_links(data, processed);
+        onStageComplete("links", processed);
+        
+        // Reposts
+        if (process_duplicates) {
+            process_duplicate_links(data, processed);
         }
+        onStageComplete("reposts", processed);*/
+        onStageComplete("FINISHED", processed);
+
+    } else {
+        onStageComplete("ERROR", null);
     }
-
-
-    return JSON.stringify(processed);
 }
 
 repost_json = [];
