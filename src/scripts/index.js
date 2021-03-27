@@ -19,11 +19,12 @@ function receiveJSON(data) {
         console.log("Fatal error receiving post data!");
         process.exit();
     }
+    
     // Process data
     processor.process_raw(data, function(stage, processed) {
         console.log("Processor completed stage: " + stage);
         if (stage === "FINISHED") {
-            outputData.push(processed);
+            outputData.push(JSON.stringify(processed));
             console.log("Finished processing.");
             posts_completed++;
         } else if (stage === "ERROR") {
@@ -32,26 +33,16 @@ function receiveJSON(data) {
             posts_completed++;
         }
         
-        // When all requests are complete
+        // When the meta stages of all posts are complete, save (but do not terminate yet).
         if (posts_completed >= post_requests.length) { 
-            // If no directory output specified in cmd args, ask for one.
-            if (outputDir == "") {
-                readline.question("Please specify a directory to export the processed JSON file(s): ", dir => {
-                    outputDir = dir;
-                    saveOutputData();
-                    readline.close();
-                    process.exit();
-                });
-            } else {
-                saveOutputData();
-                process.exit();
-            }
+            saveOutputData();
+            //process.exit();
         }
     });
 }
 
+// Save processed JSON to file(s)
 function saveOutputData() {
-    // Save output JSON to file(s)
     for (i = 0; i < outputData.length; i++) {
         if (outputData[i] == null) {
             // If outputData is invalid, skip
@@ -65,6 +56,14 @@ function saveOutputData() {
     }
 }
 
+function start_processing() {
+    // Start downloading and processing posts
+    for (i = 0; i < urls.length; i++) {
+        console.log("Downloading JSON from URL: " + urls[i]);
+        post_requests[i] = processor.download_raw(urls[i], receiveJSON);
+    }
+}
+
 if (process.argv.length > 2) {
     var nextArgIsDirectory = false;
     
@@ -75,15 +74,20 @@ if (process.argv.length > 2) {
             outputDir = process.argv[i];
             nextArgIsDirectory = false;
         } else {
-            // Load JSON from URL
-            var originalLength = outputData.length;
-            post_requests.push(processor.download_raw(process.argv[i], receiveJSON));
-            
-            // Track successfully processed URLs
             urls.push(process.argv[i]);
-            
-            console.log("Downloading JSON from URL: " + process.argv[i]);
+            post_requests.push(null);
         }
+    }
+    
+    // If no directory output specified in cmd args, ask for one.
+    if (outputDir == "") {
+        readline.question("Please specify a directory to export the processed JSON file(s): ", dir => {
+            outputDir = dir;
+            readline.close();
+            start_processing();
+        });
+    } else {
+        start_processing();
     }
 }
 else {
