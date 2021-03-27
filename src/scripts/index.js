@@ -62,6 +62,7 @@ function start_processing() {
         console.log("Downloading JSON from URL: " + urls[i]);
         post_requests[i] = processor.download_raw(urls[i], receiveJSON);
     }
+    console.log("Awaiting processing results.");
 }
 
 if (process.argv.length > 2) {

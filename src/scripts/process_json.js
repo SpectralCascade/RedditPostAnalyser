@@ -7,15 +7,14 @@ if (typeof XMLHttpRequest === 'undefined') {
 }
 
 var retries = {};
-function retry_request(original_request, callback) {
+function retry_request(url, original_request, callback) {
     setTimeout(function() {
-        let url = original_request.getResponseHeader("Location");
         if (retries[url] < 3) {
             retries[url]++;
             let xhttpr = new XMLHttpRequest();
             xhttpr.open("GET", url, asyncRequest);
             xhttp.setRequestHeader("Content-Type", "text/plain");
-            xhttpr.onreadystatechange = function() { handle_http_response(xhttpr, callback); };
+            xhttpr.onreadystatechange = function() { handle_http_response(url, xhttpr, callback); };
             console.log("HTTP response " + http_request.status);
             xhttpr.send();
         } else {
@@ -26,7 +25,7 @@ function retry_request(original_request, callback) {
     }, 500);
 }
 
-function handle_http_response(http_request, callback) {
+function handle_http_response(url, http_request, callback) {
     if (http_request.readyState == 4) {
         if (http_request.status == 200) {
             callback(http_request.responseText);
@@ -34,19 +33,19 @@ function handle_http_response(http_request, callback) {
             // Redirect, make a new request
             let xhttpr = new XMLHttpRequest();
             xhttpr.open("GET", http_request.getResponseHeader("Location"), asyncRequest);
-            xhttp.setRequestHeader("Content-Type", "text/plain");
-            xhttpr.onreadystatechange = function() { handle_http_response(xhttpr, callback); };
-            console.log("HTTP response " + http_request.status);
+            xhttpr.setRequestHeader("Content-Type", "text/plain");
+            xhttpr.onreadystatechange = function() { handle_http_response(http_request.getResponseHeader("Location"), xhttpr, callback); };
+            console.log("REDIRECT - HTTP response " + http_request.status);
             xhttpr.send();
         } else {
-            if (http_request.status == 0) {
-                // Hold back request and retry
-                retry_request(http_request, callback);
-            } else {
-                console.log("ERROR: xhttp status = " + http_request.status);
-                console.log("Response text: " + http_request.responseText);
-                callback(null);
-            }
+            /*if (http_request.status == 0) {
+                // Retry the request
+                retry_request(url, http_request, callback);
+            } else {*/
+            console.log("ERROR: xhttp status = " + http_request.status);
+            console.log("Response text: " + http_request.responseText);
+            callback(null);
+            //}
         }
     }
 }
@@ -62,15 +61,15 @@ function download_raw(url, parseDataCallback) {
     if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")))
     {
         let mainurl = url + '.json';
-        const xhttp = new XMLHttpRequest();
+        var xhttp = new XMLHttpRequest();
         download_requests.push(xhttp);
         
         xhttp.open("GET", mainurl, asyncRequest);
-
+        
         xhttp.setRequestHeader("Content-Type", "text/plain");
 
-        xhttp.onreadystatechange = function() { handle_http_response(xhttp, parseDataCallback); };
-        console.log("Sending HTTP request to " + url);
+        xhttp.onreadystatechange = function() { handle_http_response(mainurl, xhttp, parseDataCallback); };
+        console.log("Sending HTTP request to " + mainurl);
         xhttp.send();
         
         return xhttp;
@@ -206,20 +205,27 @@ function process_links(data, processed) {
 }
 
 var totalCommentsProcessed = 0;
-var requests = [];
 var complete = 0;
 var stepCount = 1;
+var recursiveSteps = 0;
+var commentThreadIds = {};
+var progression = 0;
+var seenComments = new Set();
 
 function recurseComments(processed, children, moreComments, onComplete) {
-
+    recursiveSteps++;
+    
     if (moreComments == null) {
         moreComments = [];
     }
-        
+    
     for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
         if (children[i].kind === "more") {
             for (var j = 0; j < children[i].data.children.length; j++) {
-                moreComments.push(children[i].data.children[j]);
+                if (!seenComments.has(children[i].data.children[j])) {
+                    moreComments.push(children[i].data.children[j]);
+                    seenComments.add(children[i].data.children[j]);
+                }
             }
         } else {
             // Process replies
@@ -241,32 +247,39 @@ function recurseComments(processed, children, moreComments, onComplete) {
             totalCommentsProcessed += 1;
         }
     }
-    console.log("Processed " + totalCommentsProcessed + "/" + processed.numComments + " comments.");
+    console.log("Processed " + totalCommentsProcessed + "/~" + processed.numComments + " comments.");
     
     // Download and process further comments
-    console.log("Making recursive requests...");
-    for (var i = 0; i < moreComments.length; i++) {
-        stepCount++;
-        requests.push(
-            download_raw(processed.url + moreComments[i], function(raw) {
-                if (raw != null) {
-                    // Add to the current JSON
-                    recurseComments(processed, (JSON.parse(raw))[1], null, onComplete);
-                } else {
-                    console.log("Failed to download comment thread " + moreComments[i] + "/");
-                }
-                console.log("Downloaded " + complete + "/" + stepCount + " comment threads. Processed " + totalCommentsProcessed + "/" + processed.numComments + " comments.");
-                complete++;
-            })
-        );
-    }        
-    
-    if (totalCommentsProcessed >= processed.numComments) {
-        onComplete();
-        // Reset relevant variables
-        stepCount = 1;
+    for (i = 0; i < moreComments.length; i++) {
+        // Make sure duplicates don't get processed.
+        let id = moreComments[i];
+        if (commentThreadIds[id] != 1) {
+            stepCount++;
+            commentThreadIds[id] = 1;
+            progression++;
+            console.log("Requesting comment " + id + " progression = " + progression);
+            // Unfortunately Reddit requests are rate limited, hence delay.
+            //setTimeout(function() {
+                download_raw(processed.url + id, function(raw) {
+                    progression--;
+                    if (raw != null) {
+                        // Add to the current JSON
+                        recurseComments(processed, (JSON.parse(raw))[1], null, onComplete);
+                    } else {
+                        console.log("Failed to download comment thread " + id + "/");
+                    }
+                    console.log("Downloaded " + complete + "/" + stepCount + " comment threads. Processed " + totalCommentsProcessed + "/" + processed.numComments + " comments.");
+                    complete++;
+                });
+            //}, stepCount);
+        }
     }
     
+    recursiveSteps--;
+    if (recursiveSteps == 0 && progression == 0) {
+        onComplete();
+        stepCount = 1;
+    }
 }
 
 
