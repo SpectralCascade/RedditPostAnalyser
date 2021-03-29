@@ -8,6 +8,9 @@ class LineChart extends Infographic {
 
 }
 
+
+var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
+
 var line = new LineChart(
     "line",
     "Line Chart",

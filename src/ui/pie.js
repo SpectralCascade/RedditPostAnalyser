@@ -1,7 +1,7 @@
 import {Infographic} from './infographic.js';
 
 class Pie extends Infographic {
-  
+
     constructor(chart_id, title, width, height, data) {
         super(chart_id, 'pie', title, width, height, data);
     }
@@ -13,7 +13,7 @@ var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
 var pie = new Pie(
     "pie",
     "Pie Chart",
-    900,
+    400,
     400,
     [
         {
