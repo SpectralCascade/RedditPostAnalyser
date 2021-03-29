@@ -63,16 +63,16 @@ h1 {
 }
 
 #show_links {
-  min-width: 400px;
+  width: 400px;
   padding: 20px 20px 20px 20px;
 }
 #donut_chart{
-  min-width: 400px;
+  width: 400px;
   padding: 20px 20px 20px 20px;
 }
 
 #pie_chart{
-  min-width: 400px;
+  width: 400px;
   padding: 50px 20px 20px 20px;
 
 }
