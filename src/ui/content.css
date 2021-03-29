@@ -63,20 +63,28 @@ h1 {
 }
 
 #show_links {
-  width: 400px;
+  min-width: 400px;
+  max-width: 400px;
   padding: 20px 20px 20px 20px;
 }
 #donut_chart{
-  width: 400px;
+  min-width: 400px;
+  max-width: 400px;
   padding: 20px 20px 20px 20px;
 }
 
 #pie_chart{
-  width: 400px;
+  min-width: 400px;
+  max-width: 400px;
   padding: 50px 20px 20px 20px;
 
 }
 
 #chartSelect{
   align: center;
+}
+
+footer {
+  height: 25px;
+  text-align: center;
 }

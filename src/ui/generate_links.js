@@ -18,5 +18,5 @@ for (var i = 1; i < processed.duplicates.data.length; i++){
   date_post.date = processed.duplicates.data[i].title;
   document.write("<br />" + Object.values(date_post));
 }
-document.write("</div>");
 */
+document.write("</div>");
