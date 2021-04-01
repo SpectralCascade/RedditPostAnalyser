@@ -3,7 +3,7 @@ var asyncRequest = false;
 if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
     // Node standalone code requires response before continuing to next post URL
-    asyncRequest = true;
+    //asyncRequest = true;
 }
 
 var retries = {};
@@ -32,10 +32,11 @@ function handle_http_response(url, http_request, callback) {
         } else if (http_request.status >= 301 && http_request.status <= 308) {
             // Redirect, make a new request
             let xhttpr = new XMLHttpRequest();
-            xhttpr.open("GET", http_request.getResponseHeader("Location"), asyncRequest);
+            let mainurl = http_request.getResponseHeader("Location");
+            xhttpr.open("GET", mainurl, asyncRequest);
             xhttpr.setRequestHeader("Content-Type", "text/plain");
-            xhttpr.onreadystatechange = function() { handle_http_response(http_request.getResponseHeader("Location"), xhttpr, callback); };
-            console.log("REDIRECT - HTTP response " + http_request.status);
+            xhttpr.onreadystatechange = function() { handle_http_response(mainurl, xhttpr, callback); };
+            console.log("REDIRECT - HTTP response " + http_request.status + " - NEW URL: " + mainurl);
             xhttpr.send();
         } else {
             /*if (http_request.status == 0) {
@@ -289,7 +290,7 @@ function process_meta(data, processed) {
     processed["contCount"]=0; // num controversial comments
     processed.date = new Date(); // date now
     processed.subreddit = data[0].data.children[0].data.subreddit; // subreddit
-    processed.url = "https://reddit.com" + data[0].data.children[0].data.permalink; // original post url
+    processed.url = "https://www.reddit.com" + data[0].data.children[0].data.permalink; // original post url
     processed.postDate = data[0].data.children[0].data.created_utc; // date post created
     processed.title = data[0].data.children[0].data.title; // title
     processed.upVotes =  data[0].data.children[0].data.ups; // net upvotes
@@ -352,6 +353,8 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
                 onStageComplete("FINISHED", processed);
             }
         );
+        console.log("Processed primary comments.");
+
         //console.log("total comments = " + processed.comments.length + " | total processed = " + totalCommentsProcessed);
 
     } else {
