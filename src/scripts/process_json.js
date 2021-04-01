@@ -3,7 +3,7 @@ var asyncRequest = false;
 if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
     // Node standalone code requires response before continuing to next post URL
-    //asyncRequest = true;
+    asyncRequest = true;
 }
 
 var retries = {};
