@@ -180,6 +180,8 @@ var totalCommentsProcessed = 0;
 
 function recursiveChild (processed, children) {
 
+    var allSubreddits = {};
+
     for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
         if (children[i].kind === "more") {
             // Must download more comments
@@ -203,10 +205,38 @@ function recursiveChild (processed, children) {
             if (children[i].data.controversiality > 0){
                 processed.contCount++;
             }
+            var commenter_name = children[i].data.author ;
+            download_raw("https://www.reddit.com/user/"+commenter_name,function(raw){
+              var eg  = JSON.parse(raw);
+              var list = [];
+              for(var i =0 ; i < eg.data.children.length; i++){
+                if (list.indexOf(eg.data.children[i].data.subreddit)!== -1){
+              } else{
+                list.push(eg.data.children[i].data.subreddit);
+              }
+            }
+              for (var i =0 ; i<list.length;i++){
+                if (allSubreddits.hasOwnProperty(eg.data.children[i].data.subreddit)==true){
+                  allSubreddits[eg.data.children[i].data.subreddit] += 1;
+              } else{
+                allSubreddits[eg.data.children[i].data.subreddit] = 1 ;
+              }}
+              console.log(allSubreddits);
+          Object.size = function(obj) {
+            var size = 0,
+              key;
+            for (key in obj) {
+              if (obj.hasOwnProperty(key)) size++;
+            }
+            return size;
+          };
+          var size = Object.size(allSubreddits);
+          })
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
                 "controversial" : children[i].data.controversiality > 0
             });
+
             console.log("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
 
             totalCommentsProcessed += 1;
