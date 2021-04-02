@@ -52,18 +52,18 @@ function handle_http_response(url, http_request, callback) {
 }
 
 // Requests actively downloading.
-download_requests = [];
+//download_requests = [];
 
 // Asynchronous data download.
-function download_raw(url, parseDataCallback) {
+function download_raw(url, parseDataCallback, extension = ".json") {
     url = encodeURI(url);
     var domain = new URL(url).hostname;
     // TODO: edge case handling
-    if (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")))
+    if (String(domain).includes("pushshift.io") || (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/"))))
     {
-        let mainurl = url + '.json';
+        let mainurl = url + extension;
         var xhttp = new XMLHttpRequest();
-        download_requests.push(xhttp);
+        //download_requests.push(xhttp);
         
         xhttp.open("GET", mainurl, asyncRequest);
         
@@ -75,8 +75,8 @@ function download_raw(url, parseDataCallback) {
         
         return xhttp;
     }
-    // Webpage isn't a reddit post
-    console.log("ERROR: Webpage is not a Reddit JSON source.");
+    // Webpage isn't on Reddit or Pushshift
+    console.log("ERROR: Webpage is not a valid data source.");
     parseDataCallback(null);
     return null;
 }
@@ -89,12 +89,13 @@ function extract_urls(raw_text) {
     return urls;
 }
 
-function process_links(data, processed) {
+var total_links = 0;
+
+function process_links(data, processed, onComplete) {
     var postLinks = [];
     processed.postLinks = [];
 
     // First, analyse the post itself
-    // TODO: analyse comments for links too
     for (var i = 0, counti = data[0].data.children.length; i < counti; i++) {
         post = data[0].data.children[i].data.selftext;
 
@@ -142,6 +143,7 @@ function process_links(data, processed) {
                     }
 
                     postLinks.push(url);
+                    total_links++;
                 }
                 foundIndex += 1;
             }
@@ -153,53 +155,53 @@ function process_links(data, processed) {
     var query = "http://api.pushshift.io/reddit/submission/search/?q="
 
     rawPostLinks = [];
+    if (postLinks.length == 0) {
+        onComplete();
+    }
     // Now convert links to searchable URI strings and search with pushshift
-    for (var i = 0, counti = postLinks.length; i < counti; i++) {
+    for (let i = 0, counti = postLinks.length; i < counti; i++) {
         rawPostLinks.push(postLinks[i]);
         postLinks[i] = encodeURIComponent(postLinks[i]);
         console.log("\nSearching Reddit for occurrence of link:\n" + postLinks[i]);
 
-        let xhttp = new XMLHttpRequest();
+        download_raw(query + postLinks[i], function(raw) {
+            total_links--;
+            if (raw == null) {
+                console.log("WARNING: Failed link query.");
+            } else {
+                results = JSON.parse(raw);
 
-        // TODO: try and make async queries to pushshift?
-        xhttp.open("GET", query + postLinks[i], false);
-        xhttp.setRequestHeader("Content-Type", "text/plain");
+                // Metadata for each processed link
+                processed.postLinks.push({
+                    "url" : rawPostLinks[i],
+                    "subreddits" : {},
+                    "occurrences" : 0,
+                    "numSubreddits" : 0
+                });
 
-        xhttp.onreadystatechange = function() {
-            if (xhttp.readyState == 4) {
-                if (xhttp.status == 200) {
-                    if (xhttp.responseText != null) {
-                        results = JSON.parse(xhttp.responseText);
-                        //console.log(results.data[0].full_link);
-
-                        // Metadata for each processed link
-                        processed.postLinks.push({
-                            "url" : rawPostLinks[i],
-                            "subreddits" : {},
-                            "occurrences" : 0,
-                            "numSubreddits" : 0
-                        });
-
-                        // Using the query results, determine occurrences and which subreddits the links appear in.
-                        for (var j = 0, countj = results.data.length; j < countj; j++) {
-                            processed.postLinks[i].occurrences++;
-                            if (!(results.data[j].subreddit_id in processed.postLinks[i])) {
-                                processed.postLinks[i].subreddits[results.data[j].subreddit_id] = {};
-                                processed.postLinks[i].numSubreddits++;
-                            }
-                            processed.postLinks[i].subreddits[results.data[j].subreddit_id]["name"] = results.data[j].subreddit;
-                            if (!("locations" in processed.postLinks[i].subreddits[results.data[j].subreddit_id])) {
-                                processed.postLinks[i].subreddits[results.data[j].subreddit_id]["locations"] = [];
-                            }
-                            processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations.push(
-                                results.data[j].url
-                            );
-                        }
+                // Using the query results, determine occurrences and which subreddits the links appear in.
+                for (var j = 0, countj = results.data.length; j < countj; j++) {
+                    processed.postLinks[i].occurrences++;
+                    if (!(results.data[j].subreddit_id in processed.postLinks[i])) {
+                        processed.postLinks[i].subreddits[results.data[j].subreddit_id] = {};
+                        processed.postLinks[i].numSubreddits++;
                     }
+                    processed.postLinks[i].subreddits[results.data[j].subreddit_id]["name"] = results.data[j].subreddit;
+                    if (!("locations" in processed.postLinks[i].subreddits[results.data[j].subreddit_id])) {
+                        processed.postLinks[i].subreddits[results.data[j].subreddit_id]["locations"] = [];
+                    }
+                    processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations.push(
+                        results.data[j].url
+                    );
                 }
+                console.log("Received link query results for URL: " + rawPostLinks[i]);
             }
-        };
-        xhttp.send();
+            // Once there are no more links to process, complete this stage.
+            if (total_links <= 0) {
+                onComplete();
+            }
+            
+        }, "");
 
     }
 
@@ -300,35 +302,63 @@ function process_meta(data, processed) {
     processed.stages = {};
 }
 
-function process_duplicate_links(data, processed){
+function process_reposts(data, processed, onComplete){
     let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
     
-    download_raw(duplicate_url, function(raw_json){
-        if (raw_json == null){
+    console.log("Processing reposts...");
+    download_raw(duplicate_url, function(raw_json) {
+        if (raw_json == null) {
             return;
         }
         data = JSON.parse(raw_json);
         processed.duplicates = {};
         processed.duplicates.url = [];
         processed.duplicates.data = [];
-        c = 0;
         
-        for (var i = 0; i < data[1].data.children.length; i++){
-            if (processed.duplicates.url[i] == data[1].data.children[i].data.permalink){
+        for (var i = 0; i < data[1].data.children.length; i++) {
+            if (processed.duplicates.url[i] == data[1].data.children[i].data.permalink) {
                 // Nothing needs to go here
             } else {
                 processed.duplicates.url.push(data[1].data.children[i].data.permalink);
-                c++;
             }
+        }
+
+        let total_reposts = processed.duplicates.url.length;
+        if (total_reposts == 0) {
+            onComplete();
+        }
+        for (var i = 0; i < processed.duplicates.url.length; i++) {
+            var repost_url = ("https://www.reddit.com" + processed.duplicates.url[i]);
+            download_raw(repost_url, function(duplicate_json) {
+                if (duplicate_json == null) {
+                    // uh oh
+                    return;
+                }
+                process_raw(
+                    duplicate_json,
+                    function(stage, repost_data) {
+                        console.log("Repost " + repost_data.url + " stage completed: " + stage);
+                        repost_data.stages[stage] = 1;
+                        if (
+                            "meta" in repost_data.stages &&
+                            "comments" in repost_data.stages &&
+                            "links" in repost_data.stages
+                        ) {
+                            total_reposts--;
+                            processed.duplicates.data.push(repost_data);
+                            console.log("Repost " + repost_data.url + " processing finished, " + total_reposts + " repost(s) remaining.");
+                            if (total_reposts <= 0) {
+                                onComplete();
+                            }
+                        }
+                    },
+                    false
+                );
+                
+            });
         }
     });
     
-    for (var i = 0; i < processed.duplicates.url.length; i++){
-        var repost_url = ("https://www.reddit.com" + processed.duplicates.url[i]);
-        download_raw(repost_url, function(duplicate_json){
-            processed.duplicates.data.push(JSON.parse(process_raw(duplicate_json, false)));
-        });
-    }
 }
 
 function process_raw(raw_json, onStageComplete, process_duplicates = true) {
@@ -354,9 +384,12 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
 
         // Extract URLs in post and query pushshift
         // TODO: do the same for links in comments
-        //process_links(data, processed, function() { onStageComplete("links", processed); });
+        process_links(data, processed, function() { onStageComplete("links", processed); });
 
-        //console.log("total comments = " + processed.comments.length + " | total processed = " + totalCommentsProcessed);
+        // Now process reposts
+        if (process_duplicates) {
+            process_reposts(data, processed, function() { onStageComplete("reposts", processed); });
+        }
 
     } else {
         onStageComplete("ERROR", null);
@@ -372,7 +405,7 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
     
     // Reposts
     if (process_duplicates) {
-        process_duplicate_links(data, processed);
+        process_reposts(data, processed);
     }
     onStageComplete("reposts", processed);
     onStageComplete("FINISHED", processed);

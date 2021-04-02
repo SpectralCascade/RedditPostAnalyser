@@ -31,9 +31,9 @@ function receiveJSON(data) {
         } else {
             processed.stages[stage] = 1;
             if ("meta" in processed.stages &&
-                "comments" in processed.stages// &&
-//                "links" in processed.stages &&
-//                "reposts" in processed.stages
+                "comments" in processed.stages &&
+                "links" in processed.stages &&
+                "reposts" in processed.stages
             ) {
                 // Finished!
                 outputData.push(JSON.stringify(processed));
