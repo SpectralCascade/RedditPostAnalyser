@@ -253,21 +253,21 @@ function recurseComments(processed, children, moreComments, onComplete) {
     for (i = 0; i < moreComments.length; i++) {
         // Make sure duplicates don't get processed.
         let id = moreComments[i];
-        if (commentThreadIds[id] != 1) {
+        if (!(id in commentThreadIds)) {
             stepCount++;
             commentThreadIds[id] = 1;
             progression++;
-            console.log("Requesting comment " + id + " progression = " + progression);
+            //console.log("Requesting comment " + id + " progression = " + progression);
             download_raw(processed.url + id, function(raw) {
                 progression--;
                 if (raw != null) {
-                    console.log("Downloaded " + complete + "/" + stepCount + " comment threads.");
+                    complete++;
+                    console.log("Received " + id + ". Downloaded " + complete + "/" + stepCount + " comment threads.");
                     recurseComments(processed, (JSON.parse(raw))[1].data.children, null, onComplete);
                 } else {
-                    console.log("Failed to download comment thread " + id + "/");
+                    console.log("WARNING: Failed to download comment thread " + id + "/");
                     stepCount--;
                 }
-                complete++;
             });
         }
     }
