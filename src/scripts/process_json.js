@@ -207,11 +207,10 @@ function process_links(data, processed) {
 
 var totalCommentsProcessed = 0;
 var complete = 0;
-var stepCount = 1;
+var stepCount = 0;
 var recursiveSteps = 0;
 var commentThreadIds = {};
 var progression = 0;
-var seenComments = new Set();
 
 function recurseComments(processed, children, moreComments, onComplete) {
     recursiveSteps++;
@@ -223,10 +222,10 @@ function recurseComments(processed, children, moreComments, onComplete) {
     for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
         if (children[i].kind === "more") {
             for (var j = 0; j < children[i].data.children.length; j++) {
-                if (!seenComments.has(children[i].data.children[j])) {
+                //if (!seenComments.has(children[i].data.children[j])) {
                     moreComments.push(children[i].data.children[j]);
-                    seenComments.add(children[i].data.children[j]);
-                }
+                //    seenComments.add(children[i].data.children[j]);
+                //}
             }
         } else {
             // Process replies
@@ -259,27 +258,24 @@ function recurseComments(processed, children, moreComments, onComplete) {
             commentThreadIds[id] = 1;
             progression++;
             console.log("Requesting comment " + id + " progression = " + progression);
-            // Unfortunately Reddit requests are rate limited, hence delay.
-            //setTimeout(function() {
-                download_raw(processed.url + id, function(raw) {
-                    progression--;
-                    if (raw != null) {
-                        // Add to the current JSON
-                        recurseComments(processed, (JSON.parse(raw))[1].data.children, null, onComplete);
-                    } else {
-                        console.log("Failed to download comment thread " + id + "/");
-                    }
+            download_raw(processed.url + id, function(raw) {
+                progression--;
+                if (raw != null) {
                     console.log("Downloaded " + complete + "/" + stepCount + " comment threads.");
-                    complete++;
-                });
-            //}, stepCount);
+                    recurseComments(processed, (JSON.parse(raw))[1].data.children, null, onComplete);
+                } else {
+                    console.log("Failed to download comment thread " + id + "/");
+                    stepCount--;
+                }
+                complete++;
+            });
         }
     }
     
     recursiveSteps--;
     if (recursiveSteps == 0 && progression == 0) {
         onComplete();
-        stepCount = 1;
+        stepCount = 0;
     }
 }
 
