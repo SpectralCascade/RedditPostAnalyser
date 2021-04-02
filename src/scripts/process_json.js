@@ -216,10 +216,10 @@ function recursiveChild (processed, children) {
               }
             }
               for (var i =0 ; i<list.length;i++){
-                if (allSubreddits.hasOwnProperty(eg.data.children[i].data.subreddit)==true){
-                  allSubreddits[eg.data.children[i].data.subreddit] += 1;
+                if (allSubreddits.hasOwnProperty(list[i])==true){
+                  allSubreddits[list[i]] += 1;
               } else{
-                allSubreddits[eg.data.children[i].data.subreddit] = 1 ;
+                allSubreddits[list[i]] = 1 ;
               }}
               console.log(allSubreddits);
           Object.size = function(obj) {
