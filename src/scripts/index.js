@@ -13,6 +13,7 @@ var outputDir = "";
 var urls = [];
 var posts_completed = 0;
 var post_requests = [];
+var stages_complete = 0;
 
 function receiveJSON(data) {
     if (data == null) {
@@ -23,33 +24,44 @@ function receiveJSON(data) {
     // Process data
     processor.process_raw(data, function(stage, processed) {
         console.log("Processor completed stage: " + stage);
-        if (stage === "FINISHED") {
-            outputData.push(JSON.stringify(processed));
-            console.log("Finished processing.");
-            posts_completed++;
-        } else if (stage === "ERROR") {
+        if (stage === "ERROR") {
             console.log("Failed to retrieve JSON data.");
             outputData.push(null);
             posts_completed++;
-        }
-        
-        // When the meta stages of all posts are complete, save (but do not terminate yet).
-        if (posts_completed >= post_requests.length) { 
-            saveOutputData();
-            //process.exit();
+        } else {
+            processed.stages[stage] = 1;
+            if ("meta" in processed.stages &&
+                "comments" in processed.stages// &&
+//                "links" in processed.stages &&
+//                "reposts" in processed.stages
+            ) {
+                // Finished!
+                outputData.push(JSON.stringify(processed));
+                posts_completed++;
+                console.log("\nFinished processing " + posts_completed + "/" + post_requests.length + " post(s).\n");
+
+                // Save when all posts are finished.
+                if (posts_completed >= post_requests.length) {
+                    saveOutputData();
+                }
+            }
         }
     });
 }
 
 // Save processed JSON to file(s)
 function saveOutputData() {
-    for (i = 0; i < outputData.length; i++) {
+    for (i = 0, counti = outputData.length; i < counti; i++) {
         if (outputData[i] == null) {
             // If outputData is invalid, skip
             continue;
         }
         var out = urls[i].split("/");
-        var fpath = path.join(outputDir, (urls[i][urls[i].length - 1] === '/' ? out[out.length - 2] : out[out.length - 1]) + ".json");
+        var fpath = path.join(
+            outputDir,
+            String(i).padStart(String(counti).length, '0') + "_" +
+                (urls[i][urls[i].length - 1] === '/' ? out[out.length - 2] : out[out.length - 1]) + ".json"
+        );
         fs.writeFileSync(fpath, outputData[i]);
         
         console.log("Saved processed JSON file '" + fpath + "'.");
@@ -62,7 +74,7 @@ function start_processing() {
         console.log("Downloading JSON from URL: " + urls[i]);
         post_requests[i] = processor.download_raw(urls[i], receiveJSON);
     }
-    console.log("Awaiting processing results.");
+    console.log("Awaiting processing results...");
 }
 
 if (process.argv.length > 2) {

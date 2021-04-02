@@ -245,7 +245,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
             });
             //console.log("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
 
-            totalCommentsProcessed += 1;
+            totalCommentsProcessed++;
         }
     }
     console.log("Processed " + totalCommentsProcessed + "/~" + processed.numComments + " comments.");
@@ -265,11 +265,11 @@ function recurseComments(processed, children, moreComments, onComplete) {
                     progression--;
                     if (raw != null) {
                         // Add to the current JSON
-                        recurseComments(processed, (JSON.parse(raw))[1], null, onComplete);
+                        recurseComments(processed, (JSON.parse(raw))[1].data.children, null, onComplete);
                     } else {
                         console.log("Failed to download comment thread " + id + "/");
                     }
-                    console.log("Downloaded " + complete + "/" + stepCount + " comment threads. Processed " + totalCommentsProcessed + "/" + processed.numComments + " comments.");
+                    console.log("Downloaded " + complete + "/" + stepCount + " comment threads.");
                     complete++;
                 });
             //}, stepCount);
@@ -298,7 +298,10 @@ function process_meta(data, processed) {
     processed.numComments = data[0].data.children[0].data.num_comments; // num comments
     processed.totalAwards = data[0].data.children[0].data.total_awards_received; // num awards
     processed.crossPosts = data[0].data.children[0].data.num_crossposts; // num crossposts
+    // Processed comments
     processed.comments = [];
+    // Which processing stages are complete
+    processed.stages = {};
 }
 
 function process_duplicate_links(data, processed){
@@ -349,11 +352,13 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
             null, 
             function() {
                 onStageComplete("comments", processed);
-                // TODO: execute next processing step
-                onStageComplete("FINISHED", processed);
             }
         );
         console.log("Processed primary comments.");
+
+        // Extract URLs in post and query pushshift
+        // TODO: do the same for links in comments
+        //process_links(data, processed, function() { onStageComplete("links", processed); });
 
         //console.log("total comments = " + processed.comments.length + " | total processed = " + totalCommentsProcessed);
 
