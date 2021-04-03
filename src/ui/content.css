@@ -18,20 +18,35 @@ h1 {
 
 .chartjs-render-monitor{
 }
+
 #info_and_line{
   display: flex;
   flex-direction: row;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 20px 20px 20px 20px;
 }
 
 #info{
   display: flex;
   flex-direction: column;
   justify-content: center;
-
+  min-width: 300px;
+  max-width: 600px;
+  text-align: center;
+  align-items: center;
+  border-right: 1px solid #d7d7d7;
+  border-spacing: 150px;
+  padding: 20px 20px 20px 20px;
 }
 
+#line_chart{
+  padding: 20px 20px 20px 20px;
+}
+
+#info .p {
+    font-weight: bold;
+}
 
 #title_date{
   background-color: #ff6314;
@@ -42,17 +57,34 @@ h1 {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-around;
+  padding: 20px 20px 20px 20px;
 
 }
-#pie{
 
+#show_links {
+  min-width: 400px;
+  max-width: 400px;
+  padding: 20px 20px 20px 20px;
+}
+#donut_chart{
+  min-width: 400px;
+  max-width: 400px;
+  padding: 20px 20px 20px 20px;
 }
 
-#donut{
+#pie_chart{
+  min-width: 400px;
+  max-width: 400px;
+  padding: 50px 20px 20px 20px;
 
 }
 
 #chartSelect{
   align: center;
+}
+
+footer {
+  height: 25px;
+  text-align: center;
 }

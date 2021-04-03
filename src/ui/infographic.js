@@ -19,8 +19,10 @@ export class Infographic {
           var allCharts = document.getElementById("donut_chart");
         } else if (chart_id === "pie"){
           var allCharts = document.getElementById("pie_chart");
-        } else {
+        } else if (chart_id === "line"){
           var allCharts = document.getElementById("line_chart");
+        } else {
+          var allCharts = document.getElementById("overflow_charts");
         }
 
         var container = document.createElement("div");

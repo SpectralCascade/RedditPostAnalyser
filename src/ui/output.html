@@ -8,27 +8,33 @@
   </head>
   <body>
 
-    <script src="generate_title.js"></script>
-    <script src="generate_links.js"></script>
-    <br />
-    <br />
+    <div id="title_date"></div>
 
-    <div id="all_charts">
+
+    <div id="all_charts_scripts">
       <script src = "line.js" type="module" id = "lineCss"></script>
       <script src = "donut.js" type = "module"></script>
       <script src = "pie.js" type = "module"></script>
     </div>
 
     <div id = "info_and_line">
-      <script src="generate_info.js"></script>
+      <div id="info"></div>
       <div id = "line_chart"></div>
     </div>
     <div id = "pieDonut">
+      <script id="show_links" src="generate_links.js"></script>
       <div id = "donut_chart"></div>
       <div id = "pie_chart"></div>
     </div>
 
-    <p id='test'></p>
-    <a href="https://github.com/SpectralCascade/RedditPostAnalyser">Learn more</a>
+    <div id="overflow_charts"></div>
+
+    <script src="generate_html.js"></script>
+  
   </body>
+
+  <br />
+  <footer>
+    <a href="https://github.com/SpectralCascade/RedditPostAnalyser">Learn more</a>
+  </footer>
 </html>

@@ -1,7 +1,7 @@
 import {Infographic} from './infographic.js';
 
 class DonutChart extends Infographic {
-    
+
 	constructor(chart_id, title, width, height, data) {
         super(chart_id, 'doughnut', title, width, height, data);
 	}
@@ -18,14 +18,14 @@ for (let i = 0; i < processed.postLinks.length; i++) {
     for (let a = 0; a < keys.length; a++) {
         labels.push(processed.postLinks[i].subreddits[keys[a]].name);
         totals.push(processed.postLinks[i].subreddits[keys[a]].locations.length);
-    }   
+    }
 }
 
 // Create the chart
 var donut = new DonutChart(
     "donut",
     "Donut Chart",
-    900,
+    400,
     400,
     [
         {
