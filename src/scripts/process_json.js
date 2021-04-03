@@ -213,6 +213,8 @@ var stepCount = 0;
 var recursiveSteps = 0;
 var commentThreadIds = {};
 var progression = 0;
+var other_downloads = 0;
+var allSubreddits = {};
 
 function recurseComments(processed, children, moreComments, onComplete) {
     recursiveSteps++;
@@ -221,7 +223,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
         moreComments = [];
     }
     
-    var allSubreddits = {};
+    allSubreddits = {};
 
     for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
         if (children[i].kind === "more") {
@@ -243,33 +245,50 @@ function recurseComments(processed, children, moreComments, onComplete) {
             }
             
             // User subreddit analysis
-            var commenter_name = children[i].data.author ;
-            download_raw("https://www.reddit.com/user/"+commenter_name,function(raw){
-              var eg  = JSON.parse(raw);
-              var list = [];
-              for(var i =0 ; i < eg.data.children.length; i++){
-                if (list.indexOf(eg.data.children[i].data.subreddit)!== -1){
-              } else{
-                list.push(eg.data.children[i].data.subreddit);
-              }
-            }
-              for (var i =0 ; i<list.length;i++){
-                if (allSubreddits.hasOwnProperty(list[i])==true){
-                  allSubreddits[list[i]] += 1;
-              } else{
-                allSubreddits[list[i]] = 1 ;
-              }}
-              console.log(allSubreddits);
-          Object.size = function(obj) {
-            var size = 0,
-              key;
-            for (key in obj) {
-              if (obj.hasOwnProperty(key)) size++;
-            }
-            return size;
-          };
-          var size = Object.size(allSubreddits);
-          })
+            var commenter_name = children[i].data.author;
+            other_downloads++;
+            download_raw("https://www.reddit.com/user/" + commenter_name, function(raw) {
+                other_downloads--;
+                if (raw == null) {
+                    // Error
+                } else {
+                    var eg  = JSON.parse(raw);
+                    var list = [];
+                    for(var i =0 ; i < eg.data.children.length; i++) {
+                        if (list.indexOf(eg.data.children[i].data.subreddit) !== -1) {
+                            // Do nothing
+                        } else {
+                            list.push(eg.data.children[i].data.subreddit);
+                        }
+                    }
+
+                    for (var i = 0; i < list.length; i++) {
+                        if (allSubreddits.hasOwnProperty(list[i])) {
+                            allSubreddits[list[i]]++;
+                        } else{
+                            allSubreddits[list[i]] = 1;
+                        }
+                    }
+                    console.log(allSubreddits);
+
+                    Object.size = function(obj) {
+                        var size = 0;
+                        for (var key in obj) {
+                            if (obj.hasOwnProperty(key)) {
+                                size++;
+                            }
+                        }
+                        return size;
+                    };
+                    var size = Object.size(allSubreddits);
+                }
+
+                // Async stage completion
+                if (recursiveSteps == 0 && progression == 0 && other_downloads == 0) {
+                    onComplete();
+                    stepCount = 0;
+                }
+            });
 
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
@@ -307,7 +326,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
     }
     
     recursiveSteps--;
-    if (recursiveSteps == 0 && progression == 0) {
+    if (recursiveSteps == 0 && progression == 0 && other_downloads == 0) {
         onComplete();
         stepCount = 0;
     }
