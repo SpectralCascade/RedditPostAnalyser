@@ -64,15 +64,15 @@ function download_raw(url, parseDataCallback, extension = ".json") {
         let mainurl = url + extension;
         var xhttp = new XMLHttpRequest();
         //download_requests.push(xhttp);
-        
+
         xhttp.open("GET", mainurl, asyncRequest);
-        
+
         xhttp.setRequestHeader("Content-Type", "text/plain");
 
         xhttp.onreadystatechange = function() { handle_http_response(mainurl, xhttp, parseDataCallback); };
         console.log("Sending HTTP request to " + mainurl);
         xhttp.send();
-        
+
         return xhttp;
     }
     // Webpage isn't on Reddit or Pushshift
@@ -200,7 +200,7 @@ function process_links(data, processed, onComplete) {
             if (total_links <= 0) {
                 onComplete();
             }
-            
+
         }, "");
 
     }
@@ -215,14 +215,14 @@ var commentThreadIds = {};
 var progression = 0;
 var other_downloads = 0;
 var allSubreddits = {};
-
+var allCommenterNames = {};
 function recurseComments(processed, children, moreComments, onComplete) {
     recursiveSteps++;
-    
+
     if (moreComments == null) {
         moreComments = [];
     }
-    
+
     allSubreddits = {};
 
     for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
@@ -238,57 +238,60 @@ function recurseComments(processed, children, moreComments, onComplete) {
             if (children[i].data.replies != null && children[i].data.replies != "" && children[i].data.replies.data != null && children[i].data.replies.data.children != "") {
                 recurseComments(processed, children[i].data.replies.data.children, moreComments, onComplete);
             }
-            
+
             // Process individual comment data
             if (children[i].data.controversiality > 0) {
                 processed.contCount++;
             }
-            
+
             // User subreddit analysis
             var commenter_name = children[i].data.author;
-            other_downloads++;
-            download_raw("https://www.reddit.com/user/" + commenter_name, function(raw) {
-                other_downloads--;
-                if (raw == null) {
-                    // Error
-                } else {
-                    var eg  = JSON.parse(raw);
-                    var list = [];
-                    for(var i =0 ; i < eg.data.children.length; i++) {
-                        if (list.indexOf(eg.data.children[i].data.subreddit) !== -1) {
-                            // Do nothing
-                        } else {
-                            list.push(eg.data.children[i].data.subreddit);
-                        }
-                    }
 
-                    for (var i = 0; i < list.length; i++) {
-                        if (allSubreddits.hasOwnProperty(list[i])) {
-                            allSubreddits[list[i]]++;
-                        } else{
-                            allSubreddits[list[i]] = 1;
-                        }
-                    }
-                    console.log(allSubreddits);
-
-                    Object.size = function(obj) {
-                        var size = 0;
-                        for (var key in obj) {
-                            if (obj.hasOwnProperty(key)) {
-                                size++;
+            if (!(commenter_name in allCommenterNames)) {
+              other_downloads++;
+              allCommenterNames[commenter_name] = 1;
+                download_raw("https://www.reddit.com/user/" + commenter_name, function(raw) {
+                    other_downloads--;
+                    if (raw == null) {
+                        // Error
+                    } else {
+                        var eg  = JSON.parse(raw);
+                        var list = [];
+                        for(var i =0 ; i < eg.data.children.length; i++) {
+                            if (list.indexOf(eg.data.children[i].data.subreddit) !== -1) {
+                                // Do nothing
+                            } else {
+                                list.push(eg.data.children[i].data.subreddit);
                             }
                         }
-                        return size;
-                    };
-                    var size = Object.size(allSubreddits);
-                }
 
-                // Async stage completion
-                if (recursiveSteps == 0 && progression == 0 && other_downloads == 0) {
-                    onComplete();
-                    stepCount = 0;
-                }
-            });
+                        for (var i = 0; i < list.length; i++) {
+                            if (allSubreddits.hasOwnProperty(list[i])) {
+                                allSubreddits[list[i]]++;
+                            } else{
+                                allSubreddits[list[i]] = 1;
+                            }
+                        }
+                        console.log(allSubreddits);
+
+                        Object.size = function(obj) {
+                            var size = 0;
+                            for (var key in obj) {
+                                if (obj.hasOwnProperty(key)) {
+                                    size++;
+                                }
+                            }
+                            return size;
+                        };
+                        var size = Object.size(allSubreddits);
+                    }
+
+                    // Async stage completion
+                    if (recursiveSteps == 0 && progression == 0 && other_downloads == 0) {
+                        onComplete();
+                        stepCount = 0;
+                    }
+                } );}
 
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
@@ -301,7 +304,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
         }
     }
     console.log("Processed " + totalCommentsProcessed + "/~" + processed.numComments + " comments.");
-    
+
     // Download and process further comments
     for (i = 0; i < moreComments.length; i++) {
         // Make sure duplicates don't get processed.
@@ -324,7 +327,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
             });
         }
     }
-    
+
     recursiveSteps--;
     if (recursiveSteps == 0 && progression == 0 && other_downloads == 0) {
         onComplete();
@@ -355,7 +358,7 @@ function process_meta(data, processed) {
 
 function process_reposts(data, processed, onComplete){
     let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
-    
+
     console.log("Processing reposts...");
     download_raw(duplicate_url, function(raw_json) {
         if (raw_json == null) {
@@ -365,7 +368,7 @@ function process_reposts(data, processed, onComplete){
         processed.duplicates = {};
         processed.duplicates.url = [];
         processed.duplicates.data = [];
-        
+
         for (var i = 0; i < data[1].data.children.length; i++) {
             if (processed.duplicates.url[i] == data[1].data.children[i].data.permalink) {
                 // Nothing needs to go here
@@ -406,11 +409,11 @@ function process_reposts(data, processed, onComplete){
                     },
                     false
                 );
-                
+
             });
         }
     });
-    
+
 }
 
 function process_raw(raw_json, onStageComplete, process_duplicates = true) {
@@ -422,12 +425,12 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
         // Main post data
         process_meta(data, processed);
         onStageComplete("meta", processed);
-        
+
         // Comments
         recurseComments(
             processed,
             data[1].data.children,
-            null, 
+            null,
             function() {
                 onStageComplete("comments", processed);
             }
@@ -457,7 +460,7 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
     // Links
     /*process_links(data, processed);
     onStageComplete("links", processed);
-    
+
     // Reposts
     if (process_duplicates) {
         process_reposts(data, processed);
