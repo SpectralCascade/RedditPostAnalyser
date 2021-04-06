@@ -1,4 +1,4 @@
-var asyncRequest = false;
+var asyncRequest = true;
 
 if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
@@ -390,6 +390,7 @@ function process_reposts(data, processed, onComplete){
                     function(stage, repost_data) {
                         console.log("Repost " + repost_data.url + " stage completed: " + stage);
                         repost_data.stages[stage] = 1;
+                        // TODO: wtf is this condition for? surely reposts stage onComplete can happen out of order?
                         if (
                             "meta" in repost_data.stages &&
                             "comments" in repost_data.stages &&
@@ -441,6 +442,9 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
         if (process_duplicates) {
             process_reposts(data, processed, function() { onStageComplete("reposts", processed); });
         }
+
+        // There may be further downloads and processing pending, but initial processing is complete.
+        onStageComplete("initial", processed);
 
     } else {
         onStageComplete("ERROR", null);

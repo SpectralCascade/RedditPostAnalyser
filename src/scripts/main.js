@@ -4,9 +4,17 @@ let placeholder = {};
 function parseJSON(data) {
     if (data != null)
     {
-        data = process_raw(data);
-        localStorage.setItem("redditDataJSON", data);
-        chrome.tabs.create({url: 'src/ui/output.html'});
+        process_raw(data, function(stage, processed) {
+            if (stage === "ERROR") {
+                // Uh oh
+            }
+            else if (stage === "initial") {
+                // Initial post processing is complete, lets gooo
+                //console.log("JSON:\n\n" + JSON.stringify(processed));
+                localStorage.setItem("redditDataJSON", JSON.stringify(processed));
+                chrome.tabs.create({url: 'src/ui/output.html'});
+            }
+        });
     }
     else if (mainTab != null)
     {
