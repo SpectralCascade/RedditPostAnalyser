@@ -110,6 +110,10 @@ var line = new LineChart(
               scales: {
                 xAxes: [{
                   type: 'time',
+                  time: {
+                    unit: 'minute',
+                    unitStepSize: 30,
+                  },
                   distribution: 'linear',
                   scaleLabel: {
                     display: true,
