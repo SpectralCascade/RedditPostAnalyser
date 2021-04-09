@@ -25,9 +25,9 @@ var controData = [];
 var comments = [];
 var controTotal = 0;
 var sumTotal = 0;
-for (var i = 1; i <sortingArray.length; i++){
+for (var i = 0; i <sortingArray.length; i++){
   sumTotal++;
-  if (i === 1){
+  if (i === 0){
     controData.push({t: (new Date(sortingArray[i][0])), y: controTotal});
   } else if (sortingArray[i][1] === true){
     controTotal++;
