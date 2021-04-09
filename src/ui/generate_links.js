@@ -10,13 +10,4 @@ for (var i = 0; i < processed.postLinks.length; i++) {
     document.write("Occurrences: " + String(processed.postLinks[i].occurrences));
     document.write("Total subreddits: " + String(processed.postLinks[i].numSubreddits) + "<br /><br />");
 }
-
-/*
-for (var i = 1; i < processed.duplicates.data.length; i++){
-  var date = new Date((processed.duplicates.data[i].postDate * 1000));
-  date_post = [];
-  date_post.date = processed.duplicates.data[i].title;
-  document.write("<br />" + Object.values(date_post));
-}
-*/
-document.write("</div>");
+document.write("</div>")

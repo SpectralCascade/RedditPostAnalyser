@@ -11,6 +11,29 @@ class LineChart extends Infographic {
 
 var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
 
+//Puts comments into array then sorts
+var sortingArray = [];
+for (var i = 1; i < processed.comments.length; i++){
+  sortingArray.push([(processed.comments[i].timestamp * 1000), processed.comments[i].controversial]);
+}
+sortingArray.sort(function compare(a, b) {
+  return a[0] - b[0];
+});
+
+//Puts sorted array into correct data format for displaying on chart
+var controData = [];
+var comments = [];
+var controTotal = 0;
+var sumTotal = 0;
+for (var i = 1; i <sortingArray.length; i++){
+  sumTotal++;
+  if (sortingArray[i][1] === true){
+    controTotal++;
+  }
+  controData.push({t: (new Date(sortingArray[i][0])), y: controTotal});
+  comments.push({t: (new Date(sortingArray[i][0])), y: sumTotal});
+}
+
 var line = new LineChart(
     "line",
     "Line Chart",
@@ -64,6 +87,56 @@ var line = new LineChart(
                     fill: false
                 }
             ]
-        }
+        },
+        {
+            name: "Comments",
+            datasets:  [{
+              label: 'Controversial Comments',
+              borderColor: 'red',
+              fill: false,
+              data: controData
+            },
+            {
+              label: 'Total Comments',
+              borderColor: 'green',
+              fill: false,
+              data: comments
+            }],
+            options: {
+              scales: {
+                xAxes: [{
+                  type: 'time',
+                  distribution: 'linear',
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Comment Post Time'
+                  }
+                }],
+                yAxes: [{
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Total Comments'
+                  }
+                }]
+              }
+            }
+          },
+
     ]
 );
+
+/*options: {
+  scales: {
+    xAxis: [{
+      type: 'time',
+      time: {
+        unit: 'hour',
+        unitsize: '1',
+        displayFormats: {
+          'hour': 'MMM DD YYYY'
+        }
+      }
+    }]
+  }
+}
+*/

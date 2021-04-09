@@ -87,7 +87,8 @@ export class Infographic {
                 data: {
                     labels: this.data[index].labels,
                     datasets: this.data[index].datasets
-                }
+                },
+                options: this.data[index].options
             });
         } else {
             this.startDrawing();
