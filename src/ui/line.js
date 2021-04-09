@@ -27,10 +27,14 @@ var controTotal = 0;
 var sumTotal = 0;
 for (var i = 1; i <sortingArray.length; i++){
   sumTotal++;
-  if (sortingArray[i][1] === true){
+  if (i === 1){
+    controData.push({t: (new Date(sortingArray[i][0])), y: controTotal});
+  } else if (sortingArray[i][1] === true){
     controTotal++;
-  }
-  controData.push({t: (new Date(sortingArray[i][0])), y: controTotal});
+    controData.push({t: (new Date(sortingArray[i][0])), y: controTotal});
+  } else if (i === (sortingArray.length - 1)){
+    controData.push({t: (new Date(sortingArray[i][0])), y: controTotal});
+  };
   comments.push({t: (new Date(sortingArray[i][0])), y: sumTotal});
 }
 
