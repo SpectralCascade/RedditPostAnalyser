@@ -1,5 +1,4 @@
 import {Infographic} from './infographic.js';
-
 class LineChart extends Infographic {
 
     constructor(chart_id, title, width, height, data) {
@@ -32,7 +31,10 @@ var incidentContro = 0;
 var incidentData = [];
 var incidentControData = [];
 //get first point time in ms, 5 mins = 300000ms
-var incidentStepCounter = sortingArray[0][0] + 300000;
+var step = (((sortingArray[(sortingArray.length-1)][0]) - (sortingArray[0][0]))/(sortingArray.length));
+
+var incidentStepCounter = sortingArray[0][0] + step;
+//var step = 300000;
 
 //Puts sorted array into correct data format for displaying on chart
 for (var i = 0; i <sortingArray.length; i++){
@@ -49,76 +51,35 @@ for (var i = 0; i <sortingArray.length; i++){
   comments.push({t: (new Date(sortingArray[i][0])), y: sumTotal});
 
   //start of incident data calculation, sum every 5 mins
-  if (sortingArray[i][0] >= incidentStepCounter){
-    incidentData.push({t: (new Date((incidentStepCounter - 150000))), y: incidentSum});
-    incidentControData.push({t: (new Date((incidentStepCounter - 150000))), y: incidentContro});
-    incidentStepCounter = incidentStepCounter + 300000;
-    incidentSum = 0;
-    incidentContro = 0;
+  if (sortingArray[i][0] < incidentStepCounter){
+    incidentSum++;
   };
-  incidentSum++;
   if (sortingArray[i][1] === true){
     incidentContro++;
   };
-  if (sortingArray[i][0] < incidentStepCounter){
-    incidentSum++;
-  }
+  if (sortingArray[i][0] >= incidentStepCounter){
+    incidentData.push({t: (new Date((incidentStepCounter - (step/2)))), y: incidentSum});
+    incidentControData.push({t: (new Date((incidentStepCounter - (step/2)))), y: incidentContro});
+    incidentSum = 0;
+    incidentContro = 0;
+    while (sortingArray[i][0] > (incidentStepCounter) ){
+      incidentStepCounter = incidentStepCounter + step;
+    };
+  };
+
+
+
+
 }
 
+var displayStep = Math.round(step/60000);
 var line = new LineChart(
     "line",
     "Line Chart",
     900,
     400,
     [
-        {
-            name: "Default",
-            labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
-            datasets: [
-                {
-                    data: [86,114,106,106,107,111,133,221,783,2478],
-                    label: "Africa",
-                    borderColor: "red",
-                    fill: false
-                },
-                {
-                    data: [282,350,411,502,635,809,947,1402,3700,5267],
-                    label: "Asia",
-                    borderColor: "green",
-                    fill: false
-                },
-                {
-                    data: [168,170,178,190,203,276,408,547,675,734],
-                    label: "Europe",
-                    borderColor: "blue",
-                    fill: false
-                },
-                {
-                    data: [40,20,10,16,24,38,74,167,508,784],
-                    label: "Latin America",
-                    borderColor: "orange",
-                    fill: false
-                },
-                {
-                    data: [6,3,2,2,7,26,82,172,312,433],
-                    label: "North America",
-                    borderColor: "#3e95cd",
-                    fill: false
-                }
-            ]
-        },
-        {
-            name: "Something Different",
-            labels: [1, 2, 3, 4, 5, 6, 7, 8],
-            datasets: [
-                {
-                    data: [92, 24, 256, 532, 222, 49, 1, 99, 993],
-                    label: "Wowza",
-                    borderColor: "red",
-                    fill: false
-                }
-            ]
-        },
+
         {
             name: "Comments",
             datasets:  [{
@@ -181,13 +142,13 @@ var line = new LineChart(
                     distribution: 'linear',
                     scaleLabel: {
                       display: true,
-                      labelString: 'Rolling 5 min Comment Post Time'
+                      labelString: 'Rolling ' + displayStep + ' min(s) Comment Post Time'
                     }
                   }],
                   yAxes: [{
                     scaleLabel: {
                       display: true,
-                      labelString: 'Total Comments per 5 mins'
+                      labelString: 'Total Comments per ' + displayStep + ' min(s)'
                     }
                   }]
                 },
