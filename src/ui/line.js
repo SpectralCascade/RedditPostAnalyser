@@ -31,7 +31,7 @@ var incidentContro = 0;
 var incidentData = [];
 var incidentControData = [];
 //get first point time in ms, 5 mins = 300000ms
-var step = (((sortingArray[(sortingArray.length-1)][0]) - (sortingArray[0][0]))/(sortingArray.length));
+var step = (((sortingArray[(sortingArray.length-1)][0]) - (sortingArray[0][0]))/((sortingArray.length)/2));
 
 var incidentStepCounter = sortingArray[0][0] + step;
 //var step = 300000;
@@ -50,7 +50,7 @@ for (var i = 0; i <sortingArray.length; i++){
   };
   comments.push({t: (new Date(sortingArray[i][0])), y: sumTotal});
 
-  //start of incident data calculation, sum every 5 mins
+  //start of incident data calculation, sum every step amount of time that passes
   if (sortingArray[i][0] < incidentStepCounter){
     incidentSum++;
   };
@@ -66,10 +66,6 @@ for (var i = 0; i <sortingArray.length; i++){
       incidentStepCounter = incidentStepCounter + step;
     };
   };
-
-
-
-
 }
 
 var displayStep = Math.round(step/60000);
@@ -161,19 +157,3 @@ var line = new LineChart(
             },
     ]
 );
-
-/*options: {
-  scales: {
-    xAxis: [{
-      type: 'time',
-      time: {
-        unit: 'hour',
-        unitsize: '1',
-        displayFormats: {
-          'hour': 'MMM DD YYYY'
-        }
-      }
-    }]
-  }
-}
-*/
