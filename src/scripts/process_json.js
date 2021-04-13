@@ -525,9 +525,14 @@ function run_unit_tests() {
         
         var success = true;
         
-        success = processed.downEst == 9;
+        //success = processed.downEst == 9;
+        success = processed.downEst == 9 && processed.numComments==11 && processed.subreddit=="HomeServer" && processed.totalAwards==0 && processed.crossPosts==0;
+        console.log("number of comments  = " + processed.numComments);
         console.log("downest = " + processed.downEst);
-        
+        console.log("subreddit = " + processed.subreddit);
+        console.log("totalAwards = " + processed.totalAwards);
+        console.log("crossPosts = " + processed.crossPosts);
+
         return success;
     });
     
@@ -547,8 +552,49 @@ function run_unit_tests() {
     run_test(function() {
         
         data = "Hey folks, I've been interested in taking on a home server project for a while and have finally found the time to start delving into it properly. I just wanted the community to weigh in on my plans and let me know if I'm on the right track with things. So without further ado, here we go.\n\n**Requirements - Key**\n\n* Network storage for my home desktop and laptop\n* Secure storage of backups of certain files and folders on my desktop and laptop (daily backups of some files, weekly backups of others)\n* Replace Dropbox (accessible from my Android phone)\n* Room to add more drives and more RAM if future requirements change\n\n**Requirements - Desirable**\n\n* Stream media for 1 - 3 users simultaneously\n\n**Proposed Part List**\n\nhttps://au.pcpartpicker.com/list/CHk4mk\n\n* The case allows plenty of room for expansion (8 HDD bays)\n* I believe the CPU should allow for software video transcoding if required (?)\n* Extendable memory\n\n**Proposed Software**\n\n* OS: UnRAID\n* Plugin: NextCloud\n* Plugin: Plex\n\n\nI'm not super invested in having the media server as I can already stream Netflix to my Chromecast and don't really watch shows too often anyway. It's something I'd like the option to be able to do if this setup would allow me to without changing anything.\n\nPlease let me know your thoughts or feelings about my build, as well as any words of wisdom anyone might have for a beginner.\n\nCheers!\n\nEDIT: Changed OS, updated parts list"
+
+        
         var result = extract_urls(data);
-        return result == "https://au.pcpartpicker.com/list/CHk4mk";
+       
+
+        return result == "https://au.pcpartpicker.com/list/CHk4mk" ;
+    });
+
+    run_test(function() {
+        
+        
+        data_2 ="&amp;#x200B;\n\nhttps://preview.redd.it/rkwi8ibv7es61.jpg?width=3024&amp;format=pjpg&amp;auto=webp&amp;s=9be6561828262dc6b980c6e4803978f47f4b5bac\n\nSo some of you might remember the [modded build](https://www.reddit.com/r/HomeServer/comments/f4kc7a/8_hotswap_bay_on_the_cheap_in_modded_case/) I did last year. Well recently I was looking for a clean way to add multiple SATA SSD's for cache pools without having them just lay at the bottom of my case, so I got this [5.25in to 6 x 2.5in drives hot-swap bay](https://www.amazon.ca/gp/product/B01M0BIPYC/ref=ppx_yo_dt_b_asin_title_o01_s01?ie=UTF8&amp;psc=1) from IcyDock. I was also looking to clean up the inside since my first mod left loads of sharp metal edges and the mounting solution for the bottom HDD bay was really janky.\n\n&amp;#x200B;\n\n&amp;#x200B;\n\n[\\^\\^\\^\\^ old mod                                                new mod \\^\\^\\^\\^](https://preview.redd.it/o68zl7r0bes61.jpg?width=5996&amp;format=pjpg&amp;auto=webp&amp;s=8ff9d06a758a41d354c563eb33a8e81d00520dc9)\n\nSo first off, after taking some measurements, I cut an additional space at the bottom to accommodate a 7th 5,25in slot. I also removed all the excess metal that I had previously bent out of the way.\n\n&amp;#x200B;\n\n&amp;#x200B;\n\nhttps://preview.redd.it/6z2tm5bnees61.jpg?width=2056&amp;format=pjpg&amp;auto=webp&amp;s=6ac3d323779194d2571946a416e301fd6397de6b\n\nThen, I got into Fusion 360 and designed these custom parts to support the hot-swap cages in a more elegant fashion and printed them with my resin printer that I got for other projects. These took me some time to design since the screw holes needed to be exact by no more than a 10th of a millimeter for everything to fit well.\n\n&amp;#x200B;\n\n&amp;#x200B;\n\nhttps://preview.redd.it/343ha9pcfes61.jpg?width=4032&amp;format=pjpg&amp;auto=webp&amp;s=b4dbeeb29417cfe633743d59ae057573d77c2e57\n\nhttps://preview.redd.it/lilau4pcfes61.jpg?width=3024&amp;format=pjpg&amp;auto=webp&amp;s=35abae1804dc33a940f84ee264707b488a13492d\n\n&amp;#x200B;\n\nFinally, it was assembly time! With the custom brackets and new hot-swap bay, I did my best to make things look as nice as possible given how cramped it is in this case.\n\n&amp;#x200B;\n\n&amp;#x200B;\n\nhttps://preview.redd.it/4h1xhx77hes61.jpg?width=4032&amp;format=pjpg&amp;auto=webp&amp;s=1f3121d719f03ca885edcdb2a0c167d4d8f5c76a\n\nAnd there we have it! 8 HDD plus 6 SSD all hot-swappable in a dirt cheap ATX case for space limited people! Hope this can help or inspire some who might be looking for custom solutions.\n\n&amp;#x200B;\n\nFor those who might be curious about the rest of my hardware, here's the list:\n\n* Intel i7 3770K\n* 16GB DDR3 ram\n* Asus P8Z77-V LX mobo\n* EVGA 500W PSU\n* LSI 9223-8i\n* 2x Rosewill hot-swap cages\n* Antec NSK4100 Case\n* Running Unraid\n\nStorage:\n\n* 4x 3\u00a0TB WD red drives\n* 1x 2\u00a0TB Seagate black drive\n* 2x 500\u00a0GB WD blue drives\n* 1x 240\u00a0GB SanDisk SSD\\* (waiting for my first 2x 1\u00a0TB WD blue SSD's to replace theses)\n* 1x 120\u00a0GB KINGSTON SSD\\*"
+
+        
+        var result_2 = extract_urls(data_2);
+        //console.log(result_2);
+
+        return  result_2 == 
+            'https://preview.redd.it/rkwi8ibv7es61.jpg?width=3024&amp;format=pjpg&amp;auto=webp&amp;s=9be6561828262dc6b980c6e4803978f47f4b5bac',
+            'https://www.reddit.com/r/HomeServer/comments/f4kc7a/8_hotswap_bay_on_the_cheap_in_modded_case/',
+            'https://www.amazon.ca/gp/product/B01M0BIPYC/ref=ppx_yo_dt_b_asin_title_o01_s01?ie=UTF8&amp;psc=1',
+            'https://preview.redd.it/o68zl7r0bes61.jpg?width=5996&amp;format=pjpg&amp;auto=webp&amp;s=8ff9d06a758a41d354c563eb33a8e81d00520dc9',
+            'https://preview.redd.it/6z2tm5bnees61.jpg?width=2056&amp;format=pjpg&amp;auto=webp&amp;s=6ac3d323779194d2571946a416e301fd6397de6b',
+            'https://preview.redd.it/343ha9pcfes61.jpg?width=4032&amp;format=pjpg&amp;auto=webp&amp;s=b4dbeeb29417cfe633743d59ae057573d77c2e57',
+            'https://preview.redd.it/lilau4pcfes61.jpg?width=3024&amp;format=pjpg&amp;auto=webp&amp;s=35abae1804dc33a940f84ee264707b488a13492d',
+            'https://preview.redd.it/4h1xhx77hes61.jpg?width=4032&amp;format=pjpg&amp;auto=webp&amp;s=1f3121d719f03ca885edcdb2a0c167d4d8f5c76a';
+           
+        
+    });
+
+    run_test(function() {
+        
+        
+        data_3 ="Good Morning Everyone!"
+
+        
+        var result_3 = extract_urls(data_3);
+        console.log(result_3);
+
+        return  result_3 == '';
+            
+          
+        
     });
     
     console.log(tests_passed + "/" + tests_run + " tests passed successfully.");
