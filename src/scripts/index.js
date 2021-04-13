@@ -79,6 +79,7 @@ function start_processing() {
 
 if (process.argv.length > 2) {
     var nextArgIsDirectory = false;
+    var runTests = false;
     
     for (i = 2; i < process.argv.length; i++) {
         if (process.argv[i] == "-d") {
@@ -86,6 +87,8 @@ if (process.argv.length > 2) {
         } else if (nextArgIsDirectory) {
             outputDir = process.argv[i];
             nextArgIsDirectory = false;
+        } else if (process.argv[i] == "-t" || process.argv[i] == "--test") {
+            runTests = true;
         } else {
             urls.push(process.argv[i]);
             post_requests.push(null);
@@ -93,7 +96,9 @@ if (process.argv.length > 2) {
     }
     
     // If no directory output specified in cmd args, ask for one.
-    if (outputDir == "") {
+    if (runTests) {
+        processor.run_unit_tests();
+    } else if (outputDir == "") {
         readline.question("Please specify a directory to export the processed JSON file(s): ", dir => {
             outputDir = dir;
             readline.close();
