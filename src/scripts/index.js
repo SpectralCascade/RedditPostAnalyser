@@ -2,6 +2,7 @@
 
 const processor = require("./process_json");
 const unit_tests = require("./unit_tests");
+const stress_test = require("./stress_test");
 const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
@@ -103,7 +104,7 @@ if (process.argv.length > 2) {
     if (runTests) {
         unit_tests.run_unit_tests();
     } else if (stressTest) {
-
+        stress_test.run_stress_tests();
     }
 
     else if (outputDir == "") {
