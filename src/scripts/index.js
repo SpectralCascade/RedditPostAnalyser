@@ -93,7 +93,6 @@ if (process.argv.length > 2) {
             runTests = true;
         } else if (process.argv[i] == "-s") {
             stressTest = true;
-        }
         } else {
             urls.push(process.argv[i]);
             post_requests.push(null);
@@ -104,7 +103,7 @@ if (process.argv.length > 2) {
     if (runTests) {
         unit_tests.run_unit_tests();
     } else if (stressTest) {
-        
+
     }
 
     else if (outputDir == "") {
