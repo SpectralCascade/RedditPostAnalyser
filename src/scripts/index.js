@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const processor = require("./process_json");
+const unit_tests = require("./unit_tests");
 const readline = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
@@ -101,7 +102,7 @@ if (process.argv.length > 2) {
 
     // If no directory output specified in cmd args, ask for one.
     if (runTests) {
-        processor.run_unit_tests();
+        unit_tests.run_unit_tests();
     } else if (stressTest) {
         
     }
