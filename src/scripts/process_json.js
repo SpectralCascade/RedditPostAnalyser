@@ -4,7 +4,15 @@ if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 }
 
+
+
 var retries = {};
+/**
+ * The retry_request function takes the url and tries to make an HTTP request up to three times with a 500ms delay.
+ *@param {string} url - The url of the page.
+ *@param {string} original_request - The original request.
+ *@param {string} callback - The response to send in case the maximum number of attempts is reached.
+ */
 function retry_request(url, original_request, callback) {
     setTimeout(function() {
         if (retries[url] < 3) {
@@ -22,6 +30,13 @@ function retry_request(url, original_request, callback) {
         }
     }, 500);
 }
+
+/**
+ * The handle_http_response function checks the ready state of the request and responds appropriately.
+ *@param {string} url - The url of the page.
+ *@param {string} http_request - The http request.
+ *@param {string} callback - The response.
+ */
 
 function handle_http_response(url, http_request, callback) {
     if (http_request.readyState == 4) {
@@ -52,20 +67,15 @@ function handle_http_response(url, http_request, callback) {
 // Requests actively downloading.
 //download_requests = [];
 
-function test_downloads() {
-    download_raw(
-        "https://www.reddit.com/r/HomeServer/comments/mpwaxx/newbie_question_why_wiring_all_port_of_two/",
-        function (raw_data) {
-            if (raw_data != null) {
-                // test passes
-            } else {
-                // test fails
-            }
-        }
-    );
-}
 
 // Asynchronous data download.
+
+/**
+* This function downloads data from the URL input as JSON
+* @param {String} url - The url of the reddit post
+* @param {} parseDataCallback - Define a new function to parse the data returned
+*/
+
 function download_raw(url, parseDataCallback, extension = ".json") {
     url = encodeURI(url);
     var domain = new URL(url).hostname;
@@ -91,6 +101,12 @@ function download_raw(url, parseDataCallback, extension = ".json") {
     parseDataCallback(null);
     return null;
 }
+
+
+ /**
+  * The extract_urls function looks up text and extracts urls into a list.
+  *@param {list} post - The list of urls.
+  */
 
 function extract_urls(post) {
     var postLinks = [];
@@ -148,7 +164,17 @@ function extract_urls(post) {
     return postLinks;
 }
 
+
+
 var total_links = 0;
+
+
+ /**
+  * The proccess_links function analyses the links within a post and queries to pushshift to extract data and determine occurences of these links across reddit.
+  *@param {string} data - The raw json data.
+  *@param {string} proccesed - The processed json data.
+  *@param {string} onComplete - The callback function that updates variables when they are completed.
+  */
 
 function process_links(data, processed, onComplete) {
     var postLinks = [];
@@ -227,6 +253,15 @@ var progression = 0;
 var other_downloads = 0;
 var allSubreddits = {};
 var allCommenterNames = {};
+
+/**
+ * Processes all commenters in a post and finds the data of each commenters previous comments on different subreddits
+ * @param {String} processed - The processed JSON data
+ * @param {String} children - The JSON data
+ * @param {String} moreComments - The comments that doesn's show initially
+ * @param {} onComplete - The status of the function
+ */
+ 
 function recurseComments(processed, children, moreComments, onComplete) {
     recursiveSteps++;
 
@@ -346,7 +381,11 @@ function recurseComments(processed, children, moreComments, onComplete) {
     }
 }
 
-
+/**
+ * The proccess_meta function updates the processed json data in order for it to be displayed on the html page.
+ *@param {string} data - The raw json data.
+ *@param {string} proccesed - The processed json data.
+ */
 function process_meta(data, processed) {
     // Basic post data
     totalCommentsProcessed = 0;
@@ -366,6 +405,13 @@ function process_meta(data, processed) {
     // Which processing stages are complete
     processed.stages = {};
 }
+
+/**
+ * The proccess_reposts function proccesses all commenters in a post and finds the data of each commenters previous comments on different subreddits.
+ *@param {string} data - The raw json data.
+ *@param {string} proccesed - The processed json data.
+ *@param {string} onComplete - The callback function that updates variables when they are completed.
+ */
 
 function process_reposts(data, processed, onComplete){
     let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
@@ -426,6 +472,13 @@ function process_reposts(data, processed, onComplete){
     });
 
 }
+
+/**
+ * Takes the raw json data and processes it to a form ready for further data manipulation.
+ *@param {string} raw_json - The raw json data.
+ *@param {string} onStageComplete - Updates variables when they're completed.
+ *@param {string} process_duplicates - Makes sure things aren't proccesed more than once.
+ */
 
 function process_raw(raw_json, onStageComplete, process_duplicates = true) {
     var data = JSON.parse(raw_json);

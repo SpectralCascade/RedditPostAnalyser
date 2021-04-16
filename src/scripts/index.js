@@ -16,7 +16,10 @@ var urls = [];
 var posts_completed = 0;
 var post_requests = [];
 var stages_complete = 0;
-
+/**
+* This function receives the JSON data from reddit page
+* @param {String} data - The downloaded JSON data
+*/
 function receiveJSON(data) {
     if (data == null) {
         console.log("Fatal error receiving post data!");
@@ -51,7 +54,9 @@ function receiveJSON(data) {
     });
 }
 
-// Save processed JSON to file(s)
+/**
+* Save processed JSON to file(s)
+*/
 function saveOutputData() {
     for (i = 0, counti = outputData.length; i < counti; i++) {
         if (outputData[i] == null) {
@@ -69,9 +74,10 @@ function saveOutputData() {
         console.log("Saved processed JSON file '" + fpath + "'.");
     }
 }
-
+/**
+* This function starts downloading and processing posts
+*/
 function start_processing() {
-    // Start downloading and processing posts
     for (i = 0; i < urls.length; i++) {
         console.log("Downloading JSON from URL: " + urls[i]);
         post_requests[i] = processor.download_raw(urls[i], receiveJSON);
