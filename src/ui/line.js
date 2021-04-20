@@ -72,18 +72,17 @@ function generateTimeCharts(processed) {
 
     var displayStep = Math.round(step/60000);
     return [
-
-          {
+            {
               name: "Comments",
               datasets:  [{
                 label: 'Controversial Comments',
-                borderColor: 'red',
+                borderColor: '#ff6314',
                 fill: false,
                 data: controData
               },
               {
                 label: 'Total Comments',
-                borderColor: 'green',
+                borderColor: '#5296dd',
                 fill: false,
                 data: comments
               }],
@@ -114,13 +113,13 @@ function generateTimeCharts(processed) {
                 name: "Incident Comments",
                 datasets:  [{
                   label: 'Controversial Comments',
-                  borderColor: 'red',
+                  borderColor: '#ff6314',
                   fill: false,
                   data: incidentControData
                 },
                 {
                   label: 'Total Comments',
-                  borderColor: 'green',
+                  borderColor: '#5296dd',
                   fill: false,
                   data: incidentData
                 }],

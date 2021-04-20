@@ -62,7 +62,9 @@ h1 {
   padding: 20px 20px 20px 20px;
 
 }
-
+#post_links{
+  min-width: 400px;
+}
 #show_links {
   min-width: 400px;
   max-width: 400px;
@@ -71,14 +73,15 @@ h1 {
 #donut_chart{
   min-width: 400px;
   max-width: 400px;
-  padding: 20px 20px 20px 20px;
+  padding: 20px 20px 20px 115px;
+  border-left: 1px solid #d7d7d7;
 }
 
 #pie_chart{
   min-width: 400px;
   max-width: 400px;
-  padding: 50px 20px 20px 20px;
-
+  padding: 50px 20px 20px 150px;
+  border-left: 1px solid #d7d7d7;
 }
 
 #chartSelect{
@@ -88,4 +91,33 @@ h1 {
 footer {
   height: 25px;
   text-align: center;
+  background-color: #d7d7d7;
+}
+/* For smaller Screen */
+
+@media screen and (max-width: 1536px) {
+  #info{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 300px;
+    max-width: 600px;
+    text-align: center;
+    align-items: center;
+    border-right: 0px;
+    border-spacing: 150px;
+    padding: 20px 20px 20px 20px;
+  }
+  #donut_chart{
+    min-width: 400px;
+    max-width: 400px;
+    padding: 20px 20px 20px 20px;
+    border-left: 0px solid #d7d7d7;
+  }
+  #pie_chart{
+    min-width: 400px;
+    max-width: 400px;
+    padding: 50px 20px 20px 20px;
+    border-left: 0px solid #d7d7d7;
+  }
 }

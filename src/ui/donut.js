@@ -35,8 +35,8 @@ var donut = new DonutChart(
                 {
                     data: totals,
                     backgroundColor: [
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 99, 132)'
+											'rgb(82,150,221)',
+											'rgb(255,99,20)'
                     ]
                 }
             ]

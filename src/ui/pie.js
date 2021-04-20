@@ -12,7 +12,7 @@ var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
 
 var pie = new Pie(
     "pie",
-    "Pie Chart",
+    "Upvotes/ Downvotes",
     400,
     400,
     [
@@ -22,8 +22,8 @@ var pie = new Pie(
             datasets: [{
                 data: [processed.upVotes, processed.downEst],
                 backgroundColor: [
-                    'rgb(54, 162, 235)',
-                    'rgb(255, 99, 132)'
+                    'rgb(82,150,221)',
+                    'rgb(255,99,20)'
                 ]
             }]
         }

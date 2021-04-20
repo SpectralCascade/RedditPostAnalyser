@@ -11,11 +11,10 @@ post_date = new Date((processed.postDate*1000));
 post_date = post_date.toString();
 //  puts information in info div
 document.getElementById("info").innerHTML =
-"<p> Post Uploaded on " + post_date + "</p>" +
-"<p>Number of Comments: " + processed.numComments + "</p>" +
-"<p>Total Awards: " + processed.totalAwards + "</p>" +
-"<p>Number of CrossPosts:  " + processed.crossPosts + "</p>" +
-"<br /><p>Upvotes: " + processed.upVotes + "</p>" +
-//var totalUps = obj[0].data.children[0].data.ups;
-"<p>Downvotes (estimate): " + processed.downEst + "</p>" +
-"<br /><p>Comments Controversiality: " + String(processed.contCount)+ "</p>" ;
+"<h2> Post Uploaded on " + post_date + "</h2>" +
+"<br /><h2>Upvotes: " + processed.upVotes + "</h2>" +
+"<h2>Downvotes (estimate): " + processed.downEst + "</h2>" +
+"<h2>Number of Comments: " + processed.numComments + "</h2>" +
+"<br /><h3>Total Awards: " + processed.totalAwards + "</h3>" +
+"<h3>Number of CrossPosts:  " + processed.crossPosts + "</h3>" +
+"<h3>Comments Controversiality: " + String(processed.contCount)+ "</h3>" ;
