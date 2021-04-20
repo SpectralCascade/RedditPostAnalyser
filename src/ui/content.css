@@ -95,13 +95,27 @@ footer {
 }
 /* For smaller Screen */
 
-@media screen and (max-width: 1536px) {
+@media screen and (max-width: 1563px) {
+  #pie_chart{
+    min-width: 400px;
+    max-width: 400px;
+    padding: 20px 20px 20px 20px;
+    border-left: 1px solid #d7d7d7;
+  }
+  #donut_chart{
+    min-width: 400px;
+    max-width: 400px;
+    padding: 20px 20px 20px 20px;
+    border-left: 1px solid #d7d7d7;
+  }
+}
+@media screen and (max-width: 1338px) {
   #info{
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-width: 300px;
-    max-width: 600px;
+    max-width: 400px;
     text-align: center;
     align-items: center;
     border-right: 0px;
@@ -112,12 +126,21 @@ footer {
     min-width: 400px;
     max-width: 400px;
     padding: 20px 20px 20px 20px;
-    border-left: 0px solid #d7d7d7;
+    border-left: 1px solid #d7d7d7;
   }
   #pie_chart{
     min-width: 400px;
     max-width: 400px;
     padding: 50px 20px 20px 20px;
+    border-left: 0px solid #d7d7d7;
+  }
+}
+
+@media screen and (max-width: 896px) {
+  #donut_chart{
+    min-width: 400px;
+    max-width: 400px;
+    padding: 20px 20px 20px 20px;
     border-left: 0px solid #d7d7d7;
   }
 }
