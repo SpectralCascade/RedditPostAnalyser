@@ -261,7 +261,7 @@ var allCommenterNames = {};
  * @param {String} moreComments - The comments that doesn's show initially
  * @param {} onComplete - The status of the function
  */
- 
+
 function recurseComments(processed, children, moreComments, onComplete) {
     recursiveSteps++;
 
@@ -518,6 +518,10 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
     }
 }
 
+function setAsync(async){
+    asyncRequest = async;
+}
+
 /*function beginNextStage() {
     onStageComplete("comments", processed);
 
@@ -535,5 +539,5 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
 
 repost_json = [];
 if (typeof module !== 'undefined') {
-    module.exports = { download_raw, process_raw, process_meta, extract_urls, process_links, process_reposts };
+    module.exports = { download_raw, process_raw, process_meta, extract_urls, process_links, process_reposts, recurseComments, setAsync};
 }
