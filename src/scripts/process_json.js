@@ -507,7 +507,7 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
 
         // Now process reposts
         if (process_duplicates) {
-            process_reposts(data, processed, function() { onStageComplete("reposts", processed); });
+            //process_reposts(data, processed, function() { onStageComplete("reposts", processed); });
         }
 
         // There may be further downloads and processing pending, but initial processing is complete.

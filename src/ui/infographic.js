@@ -1,6 +1,7 @@
 
 export class Infographic {
 
+    // Creates the chart itself and surrounding HTML such as dropdown buttons.
     constructor(chart_id, chartType, title, width, height, data) {
         if (constructor === 'Infographic') {
             throw new Error("Cannot instantiate abstract class \"Infographic\".");
@@ -13,6 +14,11 @@ export class Infographic {
         this.typename = chartType;
         this.data = data;
         this.dropdowns = [];
+        this.dindex = 0;
+        
+        // References to HTML objects
+        this.dropdown = null;
+        this.container = null;
 
         // Canvas generation
         if (chart_id === "donut"){
@@ -25,11 +31,11 @@ export class Infographic {
           var allCharts = document.getElementById("overflow_charts");
         }
 
-        var container = document.createElement("div");
-        container.class = "container";
-        container.style = "max-width: 800px; margin: 50px auto;";
+        this.container = document.createElement("div");
+        this.container.class = "container";
+        this.container.style = "max-width: 800px; margin: 50px auto;";
 
-        container.innerHTML =
+        this.container.innerHTML =
         "<div>\n" +
         "<h2 style=\"font-size: 24pt\">" + title + "</h2>\n" +
         "<canvas id=\"" + chart_id + "\" width=\"" + width + "\" height=\"" + height + "\"></canvas>" +
@@ -37,9 +43,10 @@ export class Infographic {
 
         // Dropdown generation for charts with more than one option.
         if (this.data.length > 1) {
-            var dropdown = document.createElement("label");
-            dropdown.innerHTML = "Choose data type:\n";
-            allCharts.appendChild(dropdown);
+            this.dropdown = document.createElement("label");
+            
+            this.dropdown.innerHTML = "Choose data type:\n";
+            allCharts.appendChild(this.dropdown);
 
             var selector = document.createElement("select");
 
@@ -69,18 +76,20 @@ export class Infographic {
 
             };
 
-            dropdown.appendChild(selector);
+            this.dropdown.appendChild(selector);
         }
 
-        allCharts.appendChild(container);
+        allCharts.appendChild(this.container);
         this.context = document.getElementById(chart_id);
 
         // Populate with default data
-        this.populate(0);
+        this.populate(this.dindex);
     }
-
+    
+    // Populate the chart with the specified option index
     populate(index) {
         if (this.data.length > 0 && this.data[index].datasets != null && this.data[index].datasets.length > 0) {
+            this.dindex = index;
             this.stopDrawing();
             this.chart = new Chart(this.context, {
                 type: this.typename,
@@ -95,10 +104,7 @@ export class Infographic {
         }
     }
 
-    add(data) {
-        this.data.push(data);
-    }
-
+    // Start drawing the loading animation
     startDrawing() {
         // TODO: Check if data is being loaded. If so, show spinning wheel; otherwise show "No data available".
         var canvas = this.context.getContext("2d");
@@ -107,11 +113,13 @@ export class Infographic {
         var infographic = this;
         window.requestAnimationFrame(function () { infographic.drawLoading(); });
     }
-
+    
+    // Stop drawing the loading animation
     stopDrawing() {
         this.updateAnimation = false;
     }
 
+    // Draw a frame of the loading animation
     drawLoading() {
         var canvas = this.context.getContext("2d");
         var halfDim = { w: this.context.width / 2, h: this.context.height / 2 };
@@ -161,13 +169,15 @@ export class Infographic {
             canvas.restore();
         }
     }
-
+    
     drawEmpty() {
         var canvas = this.context.getContext("2d");
     }
-
-    update() {
-        // todo, populate dropdowns etc.
+    
+    // Update the infographic with new data
+    update(data) {
+        this.data = data;
+        this.populate(this.dindex);
     }
 
 }

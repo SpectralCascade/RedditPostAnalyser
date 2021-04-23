@@ -1,4 +1,5 @@
 import {Infographic} from './infographic.js';
+
 class LineChart extends Infographic {
 
     constructor(chart_id, title, width, height, data) {
@@ -7,10 +8,7 @@ class LineChart extends Infographic {
 
 }
 
-
-
-
-
+// Returns the JSON data for all of the time chart options
 function generateTimeCharts(processed) {
     //Puts comments into array then sorts
     var sortingArray = [];
@@ -154,12 +152,33 @@ function generateTimeCharts(processed) {
             ]
 }
 
-var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
+// The line chart reference
+var line = null;
 
-var line = new LineChart(
-    "line",
-    "Line Chart",
-    900,
-    400,
-    generateTimeCharts(processed)
-);
+// Loads the chart data
+function loadChartsData() {
+    var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
+
+    if (line == null) {
+        line = new LineChart(
+            "line",
+            "Line Chart",
+            900,
+            400,
+            generateTimeCharts(processed)
+        );
+    } else {
+        // Regenerate from the updated data
+        line.update(generateTimeCharts(processed));
+    }
+}
+
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+    if ("action" in request && request.action == "ReloadData") {
+        loadChartsData();
+    }
+    sendResponse(null);
+});
+
+// First time initialisation
+loadChartsData();

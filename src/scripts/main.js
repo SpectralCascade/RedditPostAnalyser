@@ -1,4 +1,5 @@
 var mainTab = null;
+var extensionTab = null;
 let placeholder = {};
 
 function parseJSON(data) {
@@ -12,7 +13,18 @@ function parseJSON(data) {
                 // Initial post processing is complete, lets gooo
                 //console.log("JSON:\n\n" + JSON.stringify(processed));
                 localStorage.setItem("redditDataJSON", JSON.stringify(processed));
-                chrome.tabs.create({url: 'src/ui/output.html'});
+                chrome.tabs.create({url: 'src/ui/output.html'}, function (tab) { extensionTab = tab; });
+            }
+            else {
+                localStorage.setItem("redditDataJSON", JSON.stringify(processed));
+                console.log("Stage complete: " + stage);
+                // Reload the extension
+                if (extensionTab != null) {
+                    console.log("Reloading charts data, reached stage: " + stage);
+                    chrome.tabs.sendMessage(extensionTab.id, {action: "ReloadData"}, function(response) {
+                        // Nothing here needed
+                    });
+                }
             }
         });
     }
@@ -26,6 +38,7 @@ function parseJSON(data) {
 }
 
 function main(tab) {
+    extensionTab = null;
     mainTab = tab;
     download_raw(tab.url, parseJSON);
 }
