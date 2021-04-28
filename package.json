@@ -5,6 +5,7 @@
   "main": "src/scripts/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+    "generate-docs": "node_modules/.bin/jsdoc -c jsdoc.json"
   },
   "bin": {
     "arp-standalone": "./src/scripts/index.js"
@@ -12,6 +13,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "docdash": "^1.2.0",
     "xmlhttprequest": "^1.8.0"
   }
 }

@@ -65,13 +65,18 @@ function run_stress_tests() {
             }
         });
     }
-for (post in posts){
-    run_test(function(test_index) {
-    processor.process_links(posts[post], {}, function(stage, processed){
-        on_finish(test_index, true);
-    });
-});
-}
+    for (post in posts){
+        run_test(function(test_index) {
+            var output = {}
+            var expected_output = {postLinks: []}
+            var success = false;
+            processor.process_links(posts[post], output, function() {
+                console.log()
+                success = true;
+            });
+            return success;
+        });
+    }
 /*for (post in posts){
     run_test(function(test_index) {
     processor.process_reposts(posts[post], {}, function(stage, processed){

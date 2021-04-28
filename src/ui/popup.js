@@ -1,4 +1,8 @@
-/** Generates popup iframe */
+/** @namespace ChromeExtension */
+
+/** Generates popup iframe
+* @memberof ChromeExtension
+*/
 function Popup() {
     var iFrame  = document.getElementById("_rpa_modal_popup_frame");
     if (iFrame != null) {

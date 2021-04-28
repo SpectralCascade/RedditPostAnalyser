@@ -16,9 +16,13 @@ var urls = [];
 var posts_completed = 0;
 var post_requests = [];
 var stages_complete = 0;
+
+/** @namespace NodeStandalone */
+
 /**
 * This function receives the JSON data from reddit page
-* @param {String} data - The downloaded JSON data
+* @param {string} data - The downloaded JSON data
+* @memberof NodeStandalone
 */
 function receiveJSON(data) {
     if (data == null) {
@@ -56,6 +60,7 @@ function receiveJSON(data) {
 
 /**
 * Save processed JSON to file(s)
+* @memberof NodeStandalone
 */
 function saveOutputData() {
     for (i = 0, counti = outputData.length; i < counti; i++) {
@@ -76,6 +81,7 @@ function saveOutputData() {
 }
 /**
 * This function starts downloading and processing posts
+* @memberof NodeStandalone
 */
 function start_processing() {
     for (i = 0; i < urls.length; i++) {

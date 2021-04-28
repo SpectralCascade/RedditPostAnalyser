@@ -2,6 +2,13 @@ var mainTab = null;
 var extensionTab = null;
 let placeholder = {};
 
+/** @namespace ChromeExtension */
+
+/**
+* This function receives the JSON data from reddit page
+* @param {string} data - The downloaded JSON data
+* @memberof ChromeExtension
+*/
 function parseJSON(data) {
     if (data != null)
     {
@@ -37,6 +44,11 @@ function parseJSON(data) {
     mainTab = null;
 }
 
+/**
+* Called when the toolbar button is clicked.
+* @param {object} tab - The current open tab.
+* @memberof ChromeExtension
+*/
 function main(tab) {
     extensionTab = null;
     mainTab = tab;

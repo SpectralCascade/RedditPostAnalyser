@@ -1,4 +1,48 @@
-import {Infographic} from './infographic.js';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>ui/line.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Infographic_Infographic.html">Infographic</a></li></ul><h3>Namespaces</h3><ul><li><a href="ChromeExtension.html">ChromeExtension</a><ul class='methods'><li data-type='method'><a href="ChromeExtension.html#.generateTimeCharts">generateTimeCharts</a></li><li data-type='method'><a href="ChromeExtension.html#.ImportJSON">ImportJSON</a></li><li data-type='method'><a href="ChromeExtension.html#.main">main</a></li><li data-type='method'><a href="ChromeExtension.html#.parseJSON">parseJSON</a></li><li data-type='method'><a href="ChromeExtension.html#.Popup">Popup</a></li></ul></li><li></li><li></li><li></li><li><a href="NodeStandalone.html">NodeStandalone</a><ul class='methods'><li data-type='method'><a href="NodeStandalone.html#.receiveJSON">receiveJSON</a></li><li data-type='method'><a href="NodeStandalone.html#.saveOutputData">saveOutputData</a></li><li data-type='method'><a href="NodeStandalone.html#.start_processing">start_processing</a></li></ul></li><li><a href="Processing.html">Processing</a><ul class='methods'><li data-type='method'><a href="Processing.html#.download_raw">download_raw</a></li><li data-type='method'><a href="Processing.html#.extract_urls">extract_urls</a></li><li data-type='method'><a href="Processing.html#.handle_http_response">handle_http_response</a></li><li data-type='method'><a href="Processing.html#.process_links">process_links</a></li><li data-type='method'><a href="Processing.html#.process_meta">process_meta</a></li><li data-type='method'><a href="Processing.html#.process_raw">process_raw</a></li><li data-type='method'><a href="Processing.html#.process_reposts">process_reposts</a></li><li data-type='method'><a href="Processing.html#.recurseComments">recurseComments</a></li><li data-type='method'><a href="Processing.html#.retry_request">retry_request</a></li><li data-type='method'><a href="Processing.html#.setAsync">setAsync</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">ui/line.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Infographic} from './infographic.js';
 
 class LineChart extends Infographic {
 
@@ -18,7 +62,7 @@ class LineChart extends Infographic {
 function generateTimeCharts(processed) {
     //Puts comments into array then sorts
     var sortingArray = [];
-    for (var i = 1; i < processed.comments.length; i++){
+    for (var i = 1; i &lt; processed.comments.length; i++){
       sortingArray.push([(processed.comments[i].timestamp * 1000), processed.comments[i].controversial]);
     }
     sortingArray.sort(function compare(a, b) {
@@ -43,7 +87,7 @@ function generateTimeCharts(processed) {
     //var step = 300000;
 
     //Puts sorted array into correct data format for displaying on chart
-    for (var i = 0; i <sortingArray.length; i++){
+    for (var i = 0; i &lt;sortingArray.length; i++){
       sumTotal++;
       // 't' is x-axis but also t for time, y for y-axis
       if (i === 0){
@@ -57,7 +101,7 @@ function generateTimeCharts(processed) {
       comments.push({t: (new Date(sortingArray[i][0])), y: sumTotal});
 
       //start of incident data calculation, sum every step amount of time that passes
-      if (sortingArray[i][0] < incidentStepCounter){
+      if (sortingArray[i][0] &lt; incidentStepCounter){
         incidentSum++;
       };
       if (sortingArray[i][1] === true){
@@ -180,7 +224,7 @@ function loadChartsData() {
 }
 
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
-    if ("action" in request && request.action == "ReloadData") {
+    if ("action" in request &amp;&amp; request.action == "ReloadData") {
         loadChartsData();
     }
     sendResponse(null);
@@ -188,3 +232,28 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 
 // First time initialisation
 loadChartsData();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a> on Wed Apr 28 2021 14:23:50 GMT+0100 (British Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
