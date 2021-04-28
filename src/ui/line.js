@@ -19,10 +19,10 @@ function generateTimeCharts(processed) {
     //Puts comments into array then sorts
     var sortingArray = [];
     for (var i = 1; i < processed.comments.length; i++){
-      sortingArray.push([(processed.comments[i].timestamp * 1000), processed.comments[i].controversial]);
+        sortingArray.push([(processed.comments[i].timestamp * 1000), processed.comments[i].controversial]);
     }
     sortingArray.sort(function compare(a, b) {
-      return a[0] - b[0];
+        return a[0] - b[0];
     });
 
     //set up variables for calculating axis data

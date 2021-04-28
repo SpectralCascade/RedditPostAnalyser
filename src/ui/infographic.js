@@ -29,14 +29,14 @@ export class Infographic {
         this.container = null;
 
         /** Canvas generation */
-        if (chart_id === "donut"){
-          var allCharts = document.getElementById("donut_chart");
+        if (chart_id === "donut") {
+            var allCharts = document.getElementById("donut_chart");
         } else if (chart_id === "pie"){
-          var allCharts = document.getElementById("pie_chart");
+            var allCharts = document.getElementById("pie_chart");
         } else if (chart_id === "line"){
-          var allCharts = document.getElementById("line_chart");
+            var allCharts = document.getElementById("line_chart");
         } else {
-          var allCharts = document.getElementById("overflow_charts");
+            var allCharts = document.getElementById("overflow_charts");
         }
 
         this.container = document.createElement("div");
@@ -73,9 +73,6 @@ export class Infographic {
 
                 for (var i = 0; i < infographic.data.length; i++) {
                     if (selected === infographic.data[i].name){
-                        if (infographic.chart != null) {
-                            infographic.chart.destroy();
-                        }
                         // Populate the chart
                         infographic.populate(i);
                         break;
@@ -99,8 +96,11 @@ export class Infographic {
     */
     populate(index) {
         if (this.data.length > 0 && this.data[index].datasets != null && this.data[index].datasets.length > 0) {
-            this.dindex = index;
             this.stopDrawing();
+            if (this.chart != null) {
+                this.chart.destroy();
+            }
+            this.dindex = index;
             this.chart = new Chart(this.context, {
                 type: this.typename,
                 data: {
