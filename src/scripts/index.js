@@ -52,6 +52,7 @@ function receiveJSON(data) {
                 // Save when all posts are finished.
                 if (posts_completed >= post_requests.length) {
                     saveOutputData();
+                    process.exit()
                 }
             }
         }
@@ -97,14 +98,14 @@ if (process.argv.length > 2) {
     var stressTest = false;
 
     for (i = 2; i < process.argv.length; i++) {
-        if (process.argv[i] == "-d") {
+        if (process.argv[i] == "-o" || process.argv[i] == "--output") {
             nextArgIsDirectory = true;
         } else if (nextArgIsDirectory) {
             outputDir = process.argv[i];
             nextArgIsDirectory = false;
         } else if (process.argv[i] == "-t" || process.argv[i] == "--test") {
             runTests = true;
-        } else if (process.argv[i] == "-s") {
+        } else if (process.argv[i] == "-s" || process.argv[i] == "--stress-test") {
             stressTest = true;
         } else {
             urls.push(process.argv[i]);
