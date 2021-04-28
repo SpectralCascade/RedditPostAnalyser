@@ -8,7 +8,7 @@ export class Infographic {
     * @param {string} title - The title of the infographic.
     * @param {int} width - The width of a chart.
     * @param {int} height - The height of a chart.
-    * @param {string} data - The data to be inserted into a given chart.
+    * @param {object} data - The data to be inserted into a given chart.
     */
     constructor(chart_id, chartType, title, width, height, data) {
         if (constructor === 'Infographic') {
@@ -94,7 +94,9 @@ export class Infographic {
         this.populate(this.dindex);
     }
 
-    /** Populate the chart with the specified option index */
+    /** This function populates the chart with the specified option index
+    * @param {int} index - The data type option index of the chart.
+    */
     populate(index) {
         if (this.data.length > 0 && this.data[index].datasets != null && this.data[index].datasets.length > 0) {
             this.dindex = index;
@@ -112,7 +114,7 @@ export class Infographic {
         }
     }
 
-    /** Start drawing the loading animation */
+    /** This function starts drawing the loading animation */
     startDrawing() {
         // TODO: Check if data is being loaded. If so, show spinning wheel; otherwise show "No data available".
         var canvas = this.context.getContext("2d");
@@ -177,11 +179,6 @@ export class Infographic {
             canvas.restore();
         }
     }
-
-    drawEmpty() {
-        var canvas = this.context.getContext("2d");
-    }
-
     /** Update the infographic with new data */
     update(data) {
         this.data = data;

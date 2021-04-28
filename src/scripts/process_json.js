@@ -11,7 +11,7 @@ var retries = {};
  * The retry_request function takes the url and tries to make an HTTP request up to three times with a 500ms delay.
  *@param {string} url - The url of the page.
  *@param {string} original_request - The original request.
- *@param {string} callback - The response to send in case the maximum number of attempts is reached.
+ *@param {function} callback - A callback function called when the request is finished.
  */
 function retry_request(url, original_request, callback) {
     setTimeout(function() {
@@ -34,8 +34,8 @@ function retry_request(url, original_request, callback) {
 /**
  * The handle_http_response function checks the ready state of the request and responds appropriately.
  *@param {string} url - The url of the page.
- *@param {string} http_request - The http request.
- *@param {string} callback - The response.
+ *@param {object} http_request - The http request.
+ *@param {function} callback - A callback function called when the request is finished.
  */
 
 function handle_http_response(url, http_request, callback) {
@@ -72,8 +72,8 @@ function handle_http_response(url, http_request, callback) {
 
 /**
 * This function downloads data from the URL input as JSON
-* @param {String} url - The url of the reddit post
-* @param {} parseDataCallback - Define a new function to parse the data returned
+* @param {string} url - The url of the reddit post.
+* @param {function} parseDataCallback - A callback which parses the downloaded data. If data is null, an error has occurred.
 */
 
 function download_raw(url, parseDataCallback, extension = ".json") {
@@ -105,7 +105,7 @@ function download_raw(url, parseDataCallback, extension = ".json") {
 
  /**
   * The extract_urls function looks up text and extracts urls into a list.
-  *@param {list} post - The list of urls.
+  *@param {array} post - The list of urls.
   */
 
 function extract_urls(post) {
@@ -172,8 +172,8 @@ var total_links = 0;
  /**
   * The proccess_links function analyses the links within a post and queries to pushshift to extract data and determine occurences of these links across reddit.
   *@param {string} data - The raw json data.
-  *@param {string} proccesed - The processed json data.
-  *@param {string} onComplete - The callback function that updates variables when they are completed.
+  *@param {string} proccessed - The processed json data.
+  *@param {function} onComplete - The callback function executed when processing of links is finished.
   */
 
 function process_links(data, processed, onComplete) {
@@ -256,10 +256,10 @@ var allCommenterNames = {};
 
 /**
  * Processes all commenters in a post and finds the data of each commenters previous comments on different subreddits
- * @param {String} processed - The processed JSON data
- * @param {String} children - The JSON data
- * @param {String} moreComments - The comments that doesn's show initially
- * @param {} onComplete - The status of the function
+ * @param {object} processed - The processed JSON data.
+ * @param {object} children - The JSON data.
+ * @param {array} moreComments - Additional comment thread ids.
+ * @param {function} onComplete - The callback function to be executed when all comments have been processed.
  */
 
 function recurseComments(processed, children, moreComments, onComplete) {
@@ -383,8 +383,8 @@ function recurseComments(processed, children, moreComments, onComplete) {
 
 /**
  * The proccess_meta function updates the processed json data in order for it to be displayed on the html page.
- *@param {string} data - The raw json data.
- *@param {string} proccesed - The processed json data.
+ *@param {object} data - The original post data.
+ *@param {object} proccessed - The processed json data.
  */
 function process_meta(data, processed) {
     // Basic post data
@@ -408,9 +408,9 @@ function process_meta(data, processed) {
 
 /**
  * The proccess_reposts function proccesses all commenters in a post and finds the data of each commenters previous comments on different subreddits.
- *@param {string} data - The raw json data.
- *@param {string} proccesed - The processed json data.
- *@param {string} onComplete - The callback function that updates variables when they are completed.
+ *@param {object} data - The original post data.
+ *@param {object} proccesed - The processed json data.
+ *@param {function} onComplete - The callback function that is executed when reposts have been processed.
  */
 
 function process_reposts(data, processed, onComplete){
@@ -475,9 +475,9 @@ function process_reposts(data, processed, onComplete){
 
 /**
  * Takes the raw json data and processes it to a form ready for further data manipulation.
- *@param {string} raw_json - The raw json data.
- *@param {string} onStageComplete - Updates variables when they're completed.
- *@param {string} process_duplicates - Makes sure things aren't proccesed more than once.
+ *@param {string} raw_json - The original post data.
+ *@param {function} onStageComplete - Callback function that is called when each stage is completed.
+ *@param {boolean} process_duplicates - Makes sure reposts aren't infinitely processed.
  */
 
 function process_raw(raw_json, onStageComplete, process_duplicates = true) {
@@ -517,7 +517,10 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
         onStageComplete("ERROR", null);
     }
 }
-
+/**
+ * This function toggles the download between synchronous to asynchronous.
+ *@param {boolean} async - Makes downloads synchronous or asynchronous.
+ */
 function setAsync(async){
     asyncRequest = async;
 }

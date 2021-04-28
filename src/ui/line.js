@@ -7,8 +7,10 @@ class LineChart extends Infographic {
     }
 
 }
-
-// Returns the JSON data for all of the time chart options
+/**
+* Returns the JSON data for all of the time chart options
+* @param {object} processed - The processed post data.
+*/
 function generateTimeCharts(processed) {
     //Puts comments into array then sorts
     var sortingArray = [];

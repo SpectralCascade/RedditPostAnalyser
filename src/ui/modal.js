@@ -11,6 +11,7 @@ closeButton.onclick = function() {
     parent.postMessage('_rpa_close_popup', '*');
 };
 
+/** This function imports a processed JSON file and opens the infographics page */
 function ImportJSON() {
   var reader = new FileReader();
   reader.readAsText(this.files[0]);
