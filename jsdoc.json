@@ -3,7 +3,6 @@
         "allowUnknownTags": false
     },
     "source": {
-        "include": "../js",
         "includePattern": "\\.js$",
         "excludePattern": "(node_modules/|docs)"
     },
