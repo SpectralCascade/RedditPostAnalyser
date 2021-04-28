@@ -1,7 +1,15 @@
 
 export class Infographic {
 
-    // Creates the chart itself and surrounding HTML such as dropdown buttons.
+    /**
+    * This constructor creates the chart itself and surrounding HTML such as dropdown buttons.
+    * @param {string} chart_id - The id of the chart.
+    * @param {string} chartType - The type of the chart, i.e line, pie or donut.
+    * @param {string} title - The title of the infographic.
+    * @param {int} width - The width of a chart.
+    * @param {int} height - The height of a chart.
+    * @param {string} data - The data to be inserted into a given chart.
+    */
     constructor(chart_id, chartType, title, width, height, data) {
         if (constructor === 'Infographic') {
             throw new Error("Cannot instantiate abstract class \"Infographic\".");
@@ -15,12 +23,12 @@ export class Infographic {
         this.data = data;
         this.dropdowns = [];
         this.dindex = 0;
-        
-        // References to HTML objects
+
+        /** References to HTML objects */
         this.dropdown = null;
         this.container = null;
 
-        // Canvas generation
+        /** Canvas generation */
         if (chart_id === "donut"){
           var allCharts = document.getElementById("donut_chart");
         } else if (chart_id === "pie"){
@@ -41,10 +49,10 @@ export class Infographic {
         "<canvas id=\"" + chart_id + "\" width=\"" + width + "\" height=\"" + height + "\"></canvas>" +
         "</div>";
 
-        // Dropdown generation for charts with more than one option.
+        /** Dropdown generation for charts with more than one option. */
         if (this.data.length > 1) {
             this.dropdown = document.createElement("label");
-            
+
             this.dropdown.innerHTML = "Choose data type:\n";
             allCharts.appendChild(this.dropdown);
 
@@ -82,11 +90,11 @@ export class Infographic {
         allCharts.appendChild(this.container);
         this.context = document.getElementById(chart_id);
 
-        // Populate with default data
+        /** Populate with default data */
         this.populate(this.dindex);
     }
-    
-    // Populate the chart with the specified option index
+
+    /** Populate the chart with the specified option index */
     populate(index) {
         if (this.data.length > 0 && this.data[index].datasets != null && this.data[index].datasets.length > 0) {
             this.dindex = index;
@@ -104,7 +112,7 @@ export class Infographic {
         }
     }
 
-    // Start drawing the loading animation
+    /** Start drawing the loading animation */
     startDrawing() {
         // TODO: Check if data is being loaded. If so, show spinning wheel; otherwise show "No data available".
         var canvas = this.context.getContext("2d");
@@ -113,13 +121,13 @@ export class Infographic {
         var infographic = this;
         window.requestAnimationFrame(function () { infographic.drawLoading(); });
     }
-    
-    // Stop drawing the loading animation
+
+    /** Stop drawing the loading animation */
     stopDrawing() {
         this.updateAnimation = false;
     }
 
-    // Draw a frame of the loading animation
+    /** Draw a frame of the loading animation */
     drawLoading() {
         var canvas = this.context.getContext("2d");
         var halfDim = { w: this.context.width / 2, h: this.context.height / 2 };
@@ -134,7 +142,7 @@ export class Infographic {
         var loadingDotRadius = 8;
         var loadingWheelRadius = 32;
 
-        // Loading wheel
+        /** Loading wheel */
         var time = (new Date()).getMilliseconds();
         var deltaTime = (time - this.lastTime) / 1000;
         for (var i = 0, count = 1; i < count; i++) {
@@ -147,14 +155,14 @@ export class Infographic {
             canvas.translate(trans.x, trans.y);
             canvas.rotate((2 * Math.PI) * deltaTime * loadingSpinSpeed);
 
-            // Draw spinny dot
+            /** Draw loading dot */
             canvas.beginPath();
             canvas.arc(loadingWheelRadius, 0, loadingDotRadius, 0, 2 * Math.PI);
             canvas.fill();
             canvas.translate(-trans.x, -trans.y);
 
 
-            // Draw wheel
+            /** Draw wheel */
             canvas.beginPath();
             canvas.arc(trans.x, trans.y, loadingWheelRadius, 0, 2 * Math.PI);
             canvas.lineWidth = loadingDotRadius * 2;
@@ -169,12 +177,12 @@ export class Infographic {
             canvas.restore();
         }
     }
-    
+
     drawEmpty() {
         var canvas = this.context.getContext("2d");
     }
-    
-    // Update the infographic with new data
+
+    /** Update the infographic with new data */
     update(data) {
         this.data = data;
         this.populate(this.dindex);
