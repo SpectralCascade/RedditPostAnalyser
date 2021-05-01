@@ -272,6 +272,8 @@ function run_unit_tests() {
     
     console.log(tests_passed + "/" + tests_run + " tests passed successfully.");
     
+    
+    process.exit();
 }
 
 if (typeof module !== 'undefined') {

@@ -52,7 +52,7 @@ function receiveJSON(data) {
                 // Save when all posts are finished.
                 if (posts_completed >= post_requests.length) {
                     saveOutputData();
-                    process.exit()
+                    process.exit();
                 }
             }
         }
