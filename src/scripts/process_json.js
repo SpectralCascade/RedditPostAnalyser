@@ -30,6 +30,18 @@ var log = function(level = 0){
     }
 }
 
+function wait(ms, onFinish) {
+    if(asyncRequest){
+        setTimeout(onFinish, ms);
+    }else{
+        date = new Date();
+        while((new Date()) - date <= ms){
+            /** wait here */
+        }
+        onFinish();
+    }
+}
+
 /**
  * The retry_request function takes the url and tries to make an HTTP request up to three times with a 500ms delay.
  *@param {string} url - The url of the page.
@@ -37,22 +49,25 @@ var log = function(level = 0){
  *@param {function} callback - A callback function called when the request is finished.
  *@memberof Processing
  */
-function retry_request(url, original_request, callback) {
-    setTimeout(function() {
+function retry_request(url, original_request, callback, waitTime) {
+    onWait = function() {
         if (retries[url] < 3) {
             retries[url]++;
             let xhttpr = new XMLHttpRequest();
             xhttpr.open("GET", url, asyncRequest);
             xhttp.setRequestHeader("Content-Type", "text/plain");
             xhttpr.onreadystatechange = function() { handle_http_response(url, xhttpr, callback); };
-            log("HTTP response " + http_request.status);
+            log("HTTP response " + original_request.status);
             xhttpr.send();
         } else {
             log(2, "ERROR: Reached maximum retry attempts for URL " + url);
             log(2, "Response text: " + original_request.responseText);
-            callback(null);
+            callback(null, original_request.status);
         }
-    }, 500);
+    };
+    wait(waitTime, onWait);
+
+
 }
 
 /**
@@ -66,7 +81,7 @@ function retry_request(url, original_request, callback) {
 function handle_http_response(url, http_request, callback) {
     if (http_request.readyState == 4) {
         if (http_request.status == 200) {
-            callback(http_request.responseText);
+            callback(http_request.responseText, http_request.status);
         } else if (http_request.status >= 301 && http_request.status <= 308) {
             // Redirect, make a new request
             let xhttpr = new XMLHttpRequest();
@@ -76,14 +91,18 @@ function handle_http_response(url, http_request, callback) {
             xhttpr.onreadystatechange = function() { handle_http_response(mainurl, xhttpr, callback); };
             log("REDIRECT - HTTP response " + http_request.status + " - NEW URL: " + mainurl);
             xhttpr.send();
-        } else {
+        } else if (http_request.status == 429) {
+            retry_request(url, http_request, callback, 5000);
+
+        }
+        else {
             /*if (http_request.status == 0) {
                 // Retry the request
                 retry_request(url, http_request, callback);
             } else {*/
             log(2, "ERROR: xhttp status = " + http_request.status);
             log(2, "Response text: " + http_request.responseText);
-            callback(null);
+            callback(null, http_request.status);
             //}
         }
     }
@@ -232,7 +251,7 @@ function process_links(data, processed, onComplete) {
         postLinks[i] = encodeURIComponent(postLinks[i]);
         log("\nSearching Reddit for occurrence of link:\n" + postLinks[i]);
 
-        download_raw(query + postLinks[i], function(raw) {
+        download_raw(query + postLinks[i], function(raw, httpCode) {
             total_links--;
             if (raw == null) {
                 log(1, "WARNING: Failed link query.");
