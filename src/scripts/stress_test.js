@@ -93,7 +93,7 @@ for (post in posts){
             null,
             function() {
             on_finish(test_index, true);
-        })
+        });
     });
 };
 }
