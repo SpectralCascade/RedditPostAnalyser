@@ -14,15 +14,16 @@ function parseJSON(data) {
     {
         process_raw(data, function(stage, processed) {
             if (stage === "ERROR") {
-                // Uh oh
+                console.log("Failed to retrieve data.");
             }
             else if (stage === "initial") {
-                // Initial post processing is complete, lets gooo
-                //console.log("JSON:\n\n" + JSON.stringify(processed));
+                // Initial post processing is complete
+                processed.stages[stage] = 1;
                 localStorage.setItem("redditDataJSON", JSON.stringify(processed));
                 chrome.tabs.create({url: 'src/ui/output.html'}, function (tab) { extensionTab = tab; });
             }
             else {
+                processed.stages[stage] = 1;
                 localStorage.setItem("redditDataJSON", JSON.stringify(processed));
                 console.log("Stage complete: " + stage);
                 // Reload the extension
