@@ -238,16 +238,19 @@ function extract_urls(post) {
     return postLinks;
 }
 
-
 var total_links = 0;
 var rawPostLinks = [];
- /**
-  * The proccess_links function analyses the links within a post and queries to pushshift to extract data and determine occurences of these links across reddit.
-  *@param {string} data - The raw json data.
-  *@param {string} proccessed - The processed json data.
-  *@param {function} onComplete - The callback function executed when processing of links is finished.
-  *@memberof Processing
-  */
+
+// How long to wait between link queries to avoid HTTP code 429.
+var linkQueryDelay = 1000;
+
+/**
+ * The proccess_links function analyses the links within a post and queries to pushshift to extract data and determine occurences of these links across reddit.
+ * @param {string} data - The raw json data.
+ * @param {string} proccessed - The processed json data.
+ * @param {function} onComplete - The callback function executed when processing of links is finished.
+ * @memberof Processing
+ */
 function process_links(data, processed, onComplete) {
     var postLinks = [];
     rawPostLinks = [];
@@ -276,47 +279,50 @@ function process_links(data, processed, onComplete) {
         postLinks[i] = encodeURIComponent(postLinks[i]);
         log.info("\nSearching Reddit for occurrence of link:\n" + postLinks[i]);
 
-        download_raw(query + postLinks[i], function(raw, httpCode) {
-            total_links--;
-            if (raw == null) {
-                log.warning("WARNING: Failed link query.");
-            } else {
-                results = JSON.parse(raw);
+        // Pushshift limits number of queries that are allowed, hence waiting between requests.
+        wait(i * linkQueryDelay, function() {
+            download_raw(query + postLinks[i], function(raw, httpCode) {
+                total_links--;
+                if (raw == null) {
+                    log.warning("WARNING: Failed link query.");
+                } else {
+                    results = JSON.parse(raw);
 
-                // Index could vary due to asynchronous nature and the possibility of a download failure.
-                i = processed.postLinks.length;
-                
-                // Metadata for each processed link
-                processed.postLinks.push({
-                    "url" : rawPostLinks[i],
-                    "subreddits" : {},
-                    "occurrences" : 0,
-                    "numSubreddits" : 0
-                });
-                
-                // Using the query results, determine occurrences and which subreddits the links appear in.
-                for (var j = 0, countj = results.data.length; j < countj; j++) {
-                    processed.postLinks[i].occurrences++;
-                    if (!(results.data[j].subreddit_id in processed.postLinks[i])) {
-                        processed.postLinks[i].subreddits[results.data[j].subreddit_id] = {};
-                        processed.postLinks[i].numSubreddits++;
+                    // Index could vary due to asynchronous nature and the possibility of a download failure.
+                    i = processed.postLinks.length;
+                    
+                    // Metadata for each processed link
+                    processed.postLinks.push({
+                        "url" : rawPostLinks[i],
+                        "subreddits" : {},
+                        "occurrences" : 0,
+                        "numSubreddits" : 0
+                    });
+                    
+                    // Using the query results, determine occurrences and which subreddits the links appear in.
+                    for (var j = 0, countj = results.data.length; j < countj; j++) {
+                        processed.postLinks[i].occurrences++;
+                        if (!(results.data[j].subreddit_id in processed.postLinks[i])) {
+                            processed.postLinks[i].subreddits[results.data[j].subreddit_id] = {};
+                            processed.postLinks[i].numSubreddits++;
+                        }
+                        processed.postLinks[i].subreddits[results.data[j].subreddit_id]["name"] = results.data[j].subreddit;
+                        if (!("locations" in processed.postLinks[i].subreddits[results.data[j].subreddit_id])) {
+                            processed.postLinks[i].subreddits[results.data[j].subreddit_id]["locations"] = [];
+                        }
+                        processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations.push(
+                            results.data[j].url
+                        );
                     }
-                    processed.postLinks[i].subreddits[results.data[j].subreddit_id]["name"] = results.data[j].subreddit;
-                    if (!("locations" in processed.postLinks[i].subreddits[results.data[j].subreddit_id])) {
-                        processed.postLinks[i].subreddits[results.data[j].subreddit_id]["locations"] = [];
-                    }
-                    processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations.push(
-                        results.data[j].url
-                    );
+                    log.info("Received link query results for URL: " + rawPostLinks[i]);
                 }
-                log.info("Received link query results for URL: " + rawPostLinks[i]);
-            }
-            // Once there are no more links to process, complete this stage.
-            if (total_links <= 0) {
-                onComplete();
-            }
+                // Once there are no more links to process, complete this stage.
+                if (total_links <= 0) {
+                    onComplete();
+                }
 
-        }, "");
+            }, "");
+        });
 
     }
 
