@@ -100,7 +100,6 @@ export class Infographic {
             if (this.chart != null) {
                 this.chart.destroy();
             }
-            this.dindex = index;
             this.chart = new Chart(this.context, {
                 type: this.typename,
                 data: {
@@ -149,8 +148,8 @@ export class Infographic {
         var deltaTime = (time - this.lastTime) / 1000;
         for (var i = 0, count = 1; i < count; i++) {
             var trans = {
-                x: halfDim.w - loadingWheelRadius - loadingDotRadius,
-                y: halfDim.h - loadingWheelRadius - loadingDotRadius
+                x: halfDim.w,
+                y: halfDim.h
             };
 
 

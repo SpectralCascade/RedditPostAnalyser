@@ -1,8 +1,5 @@
 var asyncRequest = true;
 
-/** Defines the logging level; 0 = verbose, 1 = warnings, 2 = errors, 3 = none */
-var logging = 0;
-
 if (typeof XMLHttpRequest === 'undefined') {
     var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 }
@@ -11,25 +8,56 @@ var retries = {};
 
 /** @namespace Processing */
 
+/** Enumerated logging levels */
+const LogLevel = Object.freeze({"verbose": 0, "info": 1, "warning": 2, "error": 3});
+
+/** The current logging level */
+var logging = LogLevel.info;
+
 /**
  * Set the console logging level.
- *@param {int} level - What log level to use.
- * 0 = verbose, 1 = warnings, 2 = errors, 3 = none
+ *@param {string} level - What log level to use. Use the LogLevel values.
  *@memberof Processing
  */
 function setLogLevel(level) {
-    logging = level;
+    if (level in LogLevel) {
+        logging = LogLevel[level];
+    }
 }
 
 /**
  * Custom console logging.
  */
-var log = function(level = 0){
-    if (level >= logging) {
-        console.log.apply(console, arguments);
+var log = {
+    "verbose": function() {
+        if (logging >= LogLevel.verbose) {
+            console.log.apply(console, arguments);
+        }
+    },
+    "info": function() {
+        if (logging >= LogLevel.info) {
+            console.log.apply(console, arguments);
+        }
+    },
+    "warning": function() {
+        if (logging >= LogLevel.warning) {
+            console.log.apply(console, arguments);
+        }
+    },
+    "error": function() {
+        if (logging >= LogLevel.error) {
+            console.log.apply(console, arguments);
+        }
     }
-}
+};
 
+/**
+ * Pause for the specified number of milliseconds,
+ * either synchronously or asynchronously depending upon
+ * the value of the global asyncRequest variable.
+ * @param {int} ms - How many milliseconds to wait.
+ * @param {function} onFinish - A function called when waiting is over.
+ */
 function wait(ms, onFinish) {
     if(asyncRequest){
         setTimeout(onFinish, ms);
@@ -57,11 +85,11 @@ function retry_request(url, original_request, callback, waitTime) {
             xhttpr.open("GET", url, asyncRequest);
             xhttp.setRequestHeader("Content-Type", "text/plain");
             xhttpr.onreadystatechange = function() { handle_http_response(url, xhttpr, callback); };
-            log("HTTP response " + original_request.status);
+            log.info("HTTP response " + original_request.status);
             xhttpr.send();
         } else {
-            log(2, "ERROR: Reached maximum retry attempts for URL " + url);
-            log(2, "Response text: " + original_request.responseText);
+            log.error("ERROR: Reached maximum retry attempts for URL " + url);
+            log.error("Response text: " + original_request.responseText);
             callback(null, original_request.status);
         }
     };
@@ -89,7 +117,7 @@ function handle_http_response(url, http_request, callback) {
             xhttpr.open("GET", mainurl, asyncRequest);
             xhttpr.setRequestHeader("Content-Type", "text/plain");
             xhttpr.onreadystatechange = function() { handle_http_response(mainurl, xhttpr, callback); };
-            log("REDIRECT - HTTP response " + http_request.status + " - NEW URL: " + mainurl);
+            log.info("REDIRECT - HTTP response " + http_request.status + " - NEW URL: " + mainurl);
             xhttpr.send();
         } else if (http_request.status == 429) {
             retry_request(url, http_request, callback, 5000);
@@ -100,8 +128,8 @@ function handle_http_response(url, http_request, callback) {
                 // Retry the request
                 retry_request(url, http_request, callback);
             } else {*/
-            log(2, "ERROR: xhttp status = " + http_request.status);
-            log(2, "Response text: " + http_request.responseText);
+            log.error("ERROR: xhttp status = " + http_request.status);
+            log.error("Response text: " + http_request.responseText);
             callback(null, http_request.status);
             //}
         }
@@ -136,13 +164,13 @@ function download_raw(url, parseDataCallback, extension = ".json") {
         xhttp.setRequestHeader("Content-Type", "text/plain");
 
         xhttp.onreadystatechange = function() { handle_http_response(mainurl, xhttp, parseDataCallback); };
-        log("Sending HTTP request to " + mainurl);
+        log.info("Sending HTTP request to " + mainurl);
         xhttp.send();
 
         return xhttp;
     }
     // Webpage isn't on Reddit or Pushshift
-    log(2, "ERROR: Webpage is not a valid data source.");
+    log.error("ERROR: Webpage is not a valid data source.");
     parseDataCallback(null);
     return null;
 }
@@ -211,10 +239,8 @@ function extract_urls(post) {
 }
 
 
-
 var total_links = 0;
-
-
+var rawPostLinks = [];
  /**
   * The proccess_links function analyses the links within a post and queries to pushshift to extract data and determine occurences of these links across reddit.
   *@param {string} data - The raw json data.
@@ -222,9 +248,9 @@ var total_links = 0;
   *@param {function} onComplete - The callback function executed when processing of links is finished.
   *@memberof Processing
   */
-
 function process_links(data, processed, onComplete) {
     var postLinks = [];
+    rawPostLinks = [];
     processed.postLinks = [];
 
     // First, analyse the post itself
@@ -234,14 +260,13 @@ function process_links(data, processed, onComplete) {
         postLinks = extract_urls(post);
     }
 
-    log("Found links:");
+    log.info("Found links:");
     for (plink in postLinks) {
-        log(String(plink) + ": " + String(postLinks[plink]));
+        log.info(String(plink) + ": " + String(postLinks[plink]));
     }
-
+    
     var query = "http://api.pushshift.io/reddit/submission/search/?q="
-
-    rawPostLinks = [];
+    
     if (postLinks.length == 0) {
         onComplete();
     }
@@ -249,15 +274,18 @@ function process_links(data, processed, onComplete) {
     for (let i = 0, counti = postLinks.length; i < counti; i++) {
         rawPostLinks.push(postLinks[i]);
         postLinks[i] = encodeURIComponent(postLinks[i]);
-        log("\nSearching Reddit for occurrence of link:\n" + postLinks[i]);
+        log.info("\nSearching Reddit for occurrence of link:\n" + postLinks[i]);
 
         download_raw(query + postLinks[i], function(raw, httpCode) {
             total_links--;
             if (raw == null) {
-                log(1, "WARNING: Failed link query.");
+                log.warning("WARNING: Failed link query.");
             } else {
                 results = JSON.parse(raw);
 
+                // Index could vary due to asynchronous nature and the possibility of a download failure.
+                i = processed.postLinks.length;
+                
                 // Metadata for each processed link
                 processed.postLinks.push({
                     "url" : rawPostLinks[i],
@@ -265,7 +293,7 @@ function process_links(data, processed, onComplete) {
                     "occurrences" : 0,
                     "numSubreddits" : 0
                 });
-
+                
                 // Using the query results, determine occurrences and which subreddits the links appear in.
                 for (var j = 0, countj = results.data.length; j < countj; j++) {
                     processed.postLinks[i].occurrences++;
@@ -281,7 +309,7 @@ function process_links(data, processed, onComplete) {
                         results.data[j].url
                     );
                 }
-                log("Received link query results for URL: " + rawPostLinks[i]);
+                log.info("Received link query results for URL: " + rawPostLinks[i]);
             }
             // Once there are no more links to process, complete this stage.
             if (total_links <= 0) {
@@ -310,9 +338,8 @@ var allCommenterNames = {};
  * @param {object} children - The JSON data.
  * @param {array} moreComments - Additional comment thread ids.
  * @param {function} onComplete - The callback function to be executed when all comments have been processed.
- *@memberof Processing
+ * @memberof Processing
  */
-
 function recurseComments(processed, children, moreComments, onComplete) {
     recursiveSteps++;
 
@@ -344,7 +371,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
             // User subreddit analysis
             var commenter_name = children[i].data.author;
 
-            if (!(commenter_name in allCommenterNames)) {
+            /*if (!(commenter_name in allCommenterNames)) {
               other_downloads++;
               allCommenterNames[commenter_name] = 1;
                 download_raw("https://www.reddit.com/user/" + commenter_name, function(raw) {
@@ -369,7 +396,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
                                 allSubreddits[list[i]] = 1;
                             }
                         }
-                        //log(allSubreddits);
+                        //log.info(allSubreddits);
 
                         Object.size = function(obj) {
                             var size = 0;
@@ -389,18 +416,18 @@ function recurseComments(processed, children, moreComments, onComplete) {
                         stepCount = 0;
                     }
                 } );}
-
+*/
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
                 "controversial" : children[i].data.controversiality > 0
             });
 
-            //log("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
+            //log.info("timestamp = " + children[i].data.created_utc + ", date = " + new Date(children[i].data.created_utc));
 
             totalCommentsProcessed++;
         }
     }
-    log("Processed " + totalCommentsProcessed + "/~" + processed.numComments + " comments.");
+    log.info("Processed " + totalCommentsProcessed + "/~" + processed.numComments + " comments.");
 
     // Download and process further comments
     for (i = 0; i < moreComments.length; i++) {
@@ -410,15 +437,15 @@ function recurseComments(processed, children, moreComments, onComplete) {
             stepCount++;
             commentThreadIds[id] = 1;
             progression++;
-            //log("Requesting comment " + id + " progression = " + progression);
+            //log.info("Requesting comment " + id + " progression = " + progression);
             download_raw(processed.url + id, function(raw) {
                 progression--;
                 if (raw != null) {
                     complete++;
-                    log("Received " + id + ". Downloaded " + complete + "/" + stepCount + " comment threads.");
+                    log.info("Received " + id + ". Downloaded " + complete + "/" + stepCount + " comment threads.");
                     recurseComments(processed, (JSON.parse(raw))[1].data.children, null, onComplete);
                 } else {
-                    log(1, "WARNING: Failed to download comment thread " + id + "/");
+                    log.warning("WARNING: Failed to download comment thread " + id + "/");
                     stepCount--;
                 }
             });
@@ -469,7 +496,7 @@ function process_meta(data, processed) {
 function process_reposts(data, processed, onComplete){
     let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
 
-    log("Processing reposts...");
+    log.info("Processing reposts...");
     download_raw(duplicate_url, function(raw_json) {
         if (raw_json == null) {
             return;
@@ -501,7 +528,7 @@ function process_reposts(data, processed, onComplete){
                 process_raw(
                     duplicate_json,
                     function(stage, repost_data) {
-                        log("Repost " + repost_data.url + " stage completed: " + stage);
+                        log.info("Repost " + repost_data.url + " stage completed: " + stage);
                         repost_data.stages[stage] = 1;
                         // TODO: wtf is this condition for? surely reposts stage onComplete can happen out of order?
                         if (
@@ -511,7 +538,7 @@ function process_reposts(data, processed, onComplete){
                         ) {
                             total_reposts--;
                             processed.duplicates.data.push(repost_data);
-                            log("Repost " + repost_data.url + " processing finished, " + total_reposts + " repost(s) remaining.");
+                            log.info("Repost " + repost_data.url + " processing finished, " + total_reposts + " repost(s) remaining.");
                             if (total_reposts <= 0) {
                                 onComplete();
                             }
@@ -553,7 +580,7 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
                 onStageComplete("comments", processed);
             }
         );
-        log("Processed primary comments.");
+        log.info("Processed primary comments.");
 
         // Extract URLs in post and query pushshift
         // TODO: do the same for links in comments
