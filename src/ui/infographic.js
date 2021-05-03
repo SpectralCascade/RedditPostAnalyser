@@ -115,7 +115,6 @@ export class Infographic {
 
     /** This function starts drawing the loading animation */
     startDrawing() {
-        // TODO: Check if data is being loaded. If so, show spinning wheel; otherwise show "No data available".
         var canvas = this.context.getContext("2d");
         canvas.save();
         this.updateAnimation = true;
@@ -137,7 +136,6 @@ export class Infographic {
         canvas.clearRect(0, 0, halfDim.w * 2, halfDim.h * 2);
         canvas.fillStyle = 'rgba(0, 255, 255, 1)';
         canvas.strokeStyle = 'rgba(200, 200, 200, 1)';
-        canvas.save();
 
         var loadingSpinSpeed = 1;
         var loadingDotRadius = 8;
