@@ -25,11 +25,11 @@ export class Infographic {
         this.dropdowns = [];
         this.dindex = 0;
 
-        /** References to HTML objects */
+        // References to HTML objects
         this.dropdown = null;
         this.container = null;
 
-        /** Canvas generation */
+        // Canvas generation
         if (chart_id === "donut") {
             var allCharts = document.getElementById("donut_chart");
         } else if (chart_id === "pie"){
@@ -50,7 +50,7 @@ export class Infographic {
         "<canvas id=\"" + chart_id + "\" width=\"" + width + "\" height=\"" + height + "\"></canvas>" +
         "</div>";
 
-        /** Dropdown generation for charts with more than one option. */
+        // Dropdown generation for charts with more than one option.
         if (this.data.length > 1) {
             this.dropdown = document.createElement("label");
 
@@ -88,7 +88,7 @@ export class Infographic {
         allCharts.appendChild(this.container);
         this.context = document.getElementById(chart_id);
 
-        /** Populate with default data */
+        // Populate with default data
         this.populate(this.dindex);
     }
 
@@ -96,7 +96,7 @@ export class Infographic {
     * @param {int} index - The data type option index of the chart.
     */
     populate(index) {
-        if (this.data.length > 0 && this.data[index].datasets != null && this.data[index].datasets.length > 0) {
+        if (this.data.length > 0 && "datasets" in this.data[index] && this.data[index].datasets.length > 0 && "data" in this.data[index].datasets[0] && this.data[index].datasets[0].data.length > 0) {
             this.stopDrawing();
             if (this.chart != null) {
                 this.chart.destroy();
@@ -177,6 +177,7 @@ export class Infographic {
             canvas.restore();
         }
     }
+    
     /** Update the infographic with new data */
     update(data) {
         this.data = data;

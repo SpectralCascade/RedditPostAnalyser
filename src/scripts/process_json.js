@@ -360,7 +360,6 @@ var recursiveSteps = 0;
 var commentThreadIds = {};
 var progression = 0;
 var other_downloads = 0;
-var allSubreddits = {};
 var allCommenterNames = {};
 
 /**
@@ -378,7 +377,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
         moreComments = [];
     }
 
-    allSubreddits = {};
+    allCommenterNames = {};
 
     for (var i = 0; i < children.length && !(children[i] instanceof String); i++) {
         if (children[i].kind === "more") {
@@ -410,35 +409,21 @@ function recurseComments(processed, children, moreComments, onComplete) {
                     if (raw == null) {
                         // Error
                     } else {
-                        var eg  = JSON.parse(raw);
-                        var list = [];
-                        for(var i =0 ; i < eg.data.children.length; i++) {
-                            if (list.indexOf(eg.data.children[i].data.subreddit) !== -1) {
-                                // Do nothing
-                            } else {
-                                list.push(eg.data.children[i].data.subreddit);
-                            }
-                        }
-
-                        for (var i = 0; i < list.length; i++) {
-                            if (allSubreddits.hasOwnProperty(list[i])) {
-                                allSubreddits[list[i]]++;
-                            } else{
-                                allSubreddits[list[i]] = 1;
-                            }
-                        }
-                        //log.info(allSubreddits);
-
-                        Object.size = function(obj) {
-                            var size = 0;
-                            for (var key in obj) {
-                                if (obj.hasOwnProperty(key)) {
-                                    size++;
+                        var user = JSON.parse(raw);
+                        var subreddits = {};
+                        
+                        // Count unique subreddits
+                        for (var j = 0; j < user.data.children.length; j++) {
+                            var subreddit = user.data.children[j].data.subreddit;
+                            if (!(subreddit in subreddits)) {
+                                subreddits[subreddit] = 1;
+                                if (subreddit in processed.commenters.subreddits) {
+                                    processed.commenters.subreddits[subreddit]++;
+                                } else {
+                                    processed.commenters.subreddits[subreddit] = 1;
                                 }
                             }
-                            return size;
-                        };
-                        var size = Object.size(allSubreddits);
+                        }
                     }
 
                     // Async stage completion
@@ -500,7 +485,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
 function process_meta(data, processed) {
     // Basic post data
     totalCommentsProcessed = 0;
-    processed["contCount"]=0; // num controversial comments
+    processed.contCount =0; // num controversial comments
     processed.date = new Date(); // date now
     processed.subreddit = data[0].data.children[0].data.subreddit; // subreddit
     processed.url = "https://www.reddit.com" + data[0].data.children[0].data.permalink; // original post url
@@ -511,6 +496,7 @@ function process_meta(data, processed) {
     processed.numComments = data[0].data.children[0].data.num_comments; // num comments
     processed.totalAwards = data[0].data.children[0].data.total_awards_received; // num awards
     processed.crossPosts = data[0].data.children[0].data.num_crossposts; // num crossposts
+    processed.commenters = {"subreddits": {}};
     // Processed comments
     processed.comments = [];
     // Which processing stages are complete
