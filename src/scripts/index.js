@@ -14,7 +14,7 @@ var outputData = [];
 var outputDir = "";
 var urls = [];
 var posts_completed = 0;
-var post_requests = [];
+var post_requests = 0;
 var stages_complete = 0;
 
 /** @namespace NodeStandalone */
@@ -47,10 +47,10 @@ function receiveJSON(data) {
                 // Finished!
                 outputData.push(JSON.stringify(processed));
                 posts_completed++;
-                console.log("\nFinished processing " + posts_completed + "/" + post_requests.length + " post(s).\n");
+                console.log("\nFinished processing " + posts_completed + "/" + post_requests + " post(s).\n");
 
                 // Save when all posts are finished.
-                if (posts_completed >= post_requests.length) {
+                if (posts_completed >= post_requests) {
                     saveOutputData();
                     process.exit();
                 }
@@ -87,7 +87,7 @@ function saveOutputData() {
 function start_processing() {
     for (i = 0; i < urls.length; i++) {
         console.log("Downloading JSON from URL: " + urls[i]);
-        post_requests[i] = processor.download_raw(urls[i], receiveJSON);
+        processor.download_raw(urls[i], receiveJSON);
     }
     console.log("Awaiting processing results...");
 }
@@ -109,7 +109,7 @@ if (process.argv.length > 2) {
             stressTest = true;
         } else {
             urls.push(process.argv[i]);
-            post_requests.push(null);
+            post_requests++;
         }
     }
 

@@ -4,7 +4,6 @@ A Chrome extension for processing and analyzing metadata on specific Reddit post
 Can also be used as a standalone Node command line application.
 
 ## Usage
-
 First of all, download this repository and extract it (or git clone).
 
 As a Chrome extension, you need to add it via the extensions menu:

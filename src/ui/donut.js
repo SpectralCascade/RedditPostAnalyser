@@ -62,7 +62,6 @@ function loadChartsData() {
     var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
 
     if (donut == null) {
-        console.log("Creating new line chart...")
         donut = new DonutChart(
             "donut",
             "Donut Chart",

@@ -166,7 +166,6 @@ function loadChartsData() {
     var processed = JSON.parse(localStorage.getItem("redditDataJSON"));
 
     if (line == null) {
-        console.log("Creating new line chart...")
         line = new LineChart(
             "line",
             "Line Chart",

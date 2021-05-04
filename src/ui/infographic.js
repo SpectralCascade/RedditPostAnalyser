@@ -14,6 +14,7 @@ export class Infographic {
         if (constructor === 'Infographic') {
             throw new Error("Cannot instantiate abstract class \"Infographic\".");
         }
+        console.log("Initialised infographic of type \"" + chartType + "\".");
 
         this.context = null;
         this.chart = null;
@@ -180,6 +181,7 @@ export class Infographic {
     update(data) {
         this.data = data;
         this.populate(this.dindex);
+        console.log("Infographic of type \"" + this.typename + "\" updated.");
     }
 
 }

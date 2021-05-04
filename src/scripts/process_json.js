@@ -143,22 +143,23 @@ function handle_http_response(url, http_request, callback) {
 // Asynchronous data download.
 
 /**
-* This function downloads data from the URL input as JSON
+* This function downloads data from the URL input as JSON. Does not return anything.
 * @param {string} url - The url of the reddit post.
 * @param {function} parseDataCallback - A callback which parses the downloaded data. If data is null, an error has occurred.
  *@memberof Processing
 */
-
 function download_raw(url, parseDataCallback, extension = ".json") {
     url = encodeURI(url);
     var domain = new URL(url).hostname;
     // TODO: edge case handling
-    if (String(domain).includes("pushshift.io") || (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/"))))
+    isReddit = (String(domain).includes("reddit.com") && (url.includes("/comments/") || url.includes("/duplicates/") || url.includes("/user/") || url.includes("/u/")));
+    isPushshift = String(domain).includes("pushshift.io");
+    if (isPushshift || isReddit)
     {
         let mainurl = url + extension;
         var xhttp = new XMLHttpRequest();
         //download_requests.push(xhttp);
-
+        
         xhttp.open("GET", mainurl, asyncRequest);
 
         xhttp.setRequestHeader("Content-Type", "text/plain");
@@ -166,22 +167,46 @@ function download_raw(url, parseDataCallback, extension = ".json") {
         xhttp.onreadystatechange = function() { handle_http_response(mainurl, xhttp, parseDataCallback); };
         log.info("Sending HTTP request to " + mainurl);
         xhttp.send();
-
-        return xhttp;
+    } else {
+        // Webpage isn't on Reddit or Pushshift
+        log.error("ERROR: Webpage is not a valid data source.");
+        parseDataCallback(null);
     }
-    // Webpage isn't on Reddit or Pushshift
-    log.error("ERROR: Webpage is not a valid data source.");
-    parseDataCallback(null);
-    return null;
 }
 
+var redditRequestCount = 1;
+var redditDelayTime = 0;
+// Unfortunately, one must rate-limit requests to reddit.
+const interval = 10000;
+
+/**
+ * Wrapper for download_raw() that ensures the reddit rate limit is respected (60 requests per minute).
+ * @param {string} url - The url of the reddit post.
+ * @param {function} parseDataCallback - A callback which parses the downloaded data. If data is null, an error has occurred.
+ * @param {string} extension - Optional file extension to append to end of URL. Defaults to ".json".
+ * @memberof Processing
+*/
+function redditDownload(url, parseDataCallback, extension = ".json") {
+    redditRequestCount++;
+    if (redditRequestCount > 60) {
+        log.info("Hit reddit request limit, waiting with delay = " + redditDelayTime + "ms");
+        redditDelayTime += interval;
+        wait(interval, function() { if (redditDelayTime >= interval) { redditDelayTime -= interval; } });
+        redditRequestCount = 0;
+    }
+    wait(redditDelayTime, function() {
+        if (redditDelayTime != 0) {
+            redditRequestCount = 0;
+        }
+        download_raw(url, parseDataCallback, extension = ".json");
+    });
+}
 
  /**
   * The extract_urls function looks up text and extracts urls into a list.
-  *@param {array} post - The list of urls.
-  *@memberof Processing
+  * @param {array} post - The list of urls.
+  * @memberof Processing
   */
-
 function extract_urls(post) {
     var postLinks = [];
 
@@ -377,10 +402,10 @@ function recurseComments(processed, children, moreComments, onComplete) {
             // User subreddit analysis
             var commenter_name = children[i].data.author;
 
-            /*if (!(commenter_name in allCommenterNames)) {
-              other_downloads++;
-              allCommenterNames[commenter_name] = 1;
-                download_raw("https://www.reddit.com/user/" + commenter_name, function(raw) {
+            if (!(commenter_name in allCommenterNames)) {
+                other_downloads++;
+                allCommenterNames[commenter_name] = 1;
+                redditDownload("https://www.reddit.com/user/" + commenter_name, function(raw) {
                     other_downloads--;
                     if (raw == null) {
                         // Error
@@ -421,8 +446,9 @@ function recurseComments(processed, children, moreComments, onComplete) {
                         onComplete();
                         stepCount = 0;
                     }
-                } );}
-*/
+                });
+            }
+
             processed.comments.push({
                 "timestamp" : children[i].data.created_utc,
                 "controversial" : children[i].data.controversiality > 0
@@ -444,7 +470,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
             commentThreadIds[id] = 1;
             progression++;
             //log.info("Requesting comment " + id + " progression = " + progression);
-            download_raw(processed.url + id, function(raw) {
+            redditDownload(processed.url + id, function(raw) {
                 progression--;
                 if (raw != null) {
                     complete++;
@@ -503,7 +529,7 @@ function process_reposts(data, processed, onComplete){
     let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
 
     log.info("Processing reposts...");
-    download_raw(duplicate_url, function(raw_json) {
+    redditDownload(duplicate_url, function(raw_json) {
         if (raw_json == null) {
             return;
         }
@@ -526,7 +552,7 @@ function process_reposts(data, processed, onComplete){
         }
         for (var i = 0; i < processed.duplicates.url.length; i++) {
             var repost_url = ("https://www.reddit.com" + processed.duplicates.url[i]);
-            download_raw(repost_url, function(duplicate_json) {
+            redditDownload(repost_url, function(duplicate_json) {
                 if (duplicate_json == null) {
                     // uh oh
                     return;
@@ -612,21 +638,6 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
 function setAsync(async){
     asyncRequest = async;
 }
-
-/*function beginNextStage() {
-    onStageComplete("comments", processed);
-
-    // Links
-    /*process_links(data, processed);
-    onStageComplete("links", processed);
-
-    // Reposts
-    if (process_duplicates) {
-        process_reposts(data, processed);
-    }
-    onStageComplete("reposts", processed);
-    onStageComplete("FINISHED", processed);
-}*/
 
 repost_json = [];
 if (typeof module !== 'undefined') {

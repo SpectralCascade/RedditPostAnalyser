@@ -45,7 +45,7 @@ function run_stress_tests() {
 
     for (i = 0; i<url_list.length;i++) {
         run_test(function(test_index) {
-                processor.download_raw(url_list[i], function(data){
+                processor.download_raw(url_list[i], function(data) {
                     if (data != null) {
                         var processed = {};
                         processor.process_meta(JSON.parse(data), processed);
