@@ -20,3 +20,7 @@ As a standalone command line application:
 1. Install Node
 2. Run `npm install` in the root repository directory
 3. Once installed, run `node . <reddit post URL(s)> -o .` to process reddit posts and output to JSON files in the current directory.
+
+## Documentation
+
+All documentation can be found at [https://spectralcascade.github.io/RedditPostAnalyser/](https://spectralcascade.github.io/RedditPostAnalyser/)
