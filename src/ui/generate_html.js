@@ -8,8 +8,8 @@ function loadMeta() {
     date = date.toString();
 
     // create title and time of data analysis
-    titleDate.innerHTML = "<p style=\"font-size: 24pt;\">Analysis of <strong>" +
-    processed.title + "</strong></p>" +"<h3>Generated on " + date + "</h3";
+    titleDate.innerHTML = "<p style=\"font-size: 24pt;\">Analysis of <strong><a id=\"maintitle\" href=\"" + processed.url + "\" target=\"_blank\">" +
+    processed.title + "</strong></a></p>" +"<h3>Generated on " + date + "</h3";
 
     post_date = new Date((processed.postDate * 1000));
     post_date = post_date.toString();

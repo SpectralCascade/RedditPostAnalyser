@@ -16,7 +16,15 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  font-weight: normal;
+}
+
 .chartjs-render-monitor{
+}
+
+#maintitle:visited {
+  color: white;
 }
 
 #info_and_line{
