@@ -8,9 +8,10 @@ class DonutChart extends Infographic {
 
 }
 
-function generateDonutChart(processed) {
-    var labels = {"links": [], "user_subreddits": []};
-    var data = {"links": [], "user_subreddits": []};
+function generateDonutChart(processed) {    
+    // Data format is {"label": "", "data": null}
+    var links = [];
+    var user_subreddits = [];
     
     // Only allow a certain number of data points to be shown
     var dataLimit = 10;
@@ -35,22 +36,25 @@ function generateDonutChart(processed) {
                 hasLinksData = true;
             }
             for (let a = 0; a < keys.length; a++) {
-                if (labels.links.length < dataLimit) {
-                    labels.links.push(processed.postLinks[i].subreddits[keys[a]].name);
-                    data.links.push(processed.postLinks[i].subreddits[keys[a]].locations.length);
-                } else if (labels.links.length == dataLimit) {
-                    labels.links.push("Other links (" + (keys.length - a) + ")");
-                    data.links.push(processed.postLinks[i].subreddits[keys[a]].locations.length);
-                } else {
-                    // Add to "Other links" section
-                    data.links[dataLimit] += processed.postLinks[i].subreddits[keys[a]].locations.length;
-                }
+                links.push({
+                    "label": processed.postLinks[i].subreddits[keys[a]].name,
+                    "data": processed.postLinks[i].subreddits[keys[a]].locations.length
+                });
             }
+            
+            // Sort the data
+            links.sort(function(a, b) {
+                if (a.data > b.data) {
+                    return -1;
+                } else if (a.data < b.data) {
+                    return 1;
+                }
+                return 0;
+            });
         }
         
         if (!hasLinksData) {
-            data.links = [-1];
-            labels.links = ["No data available"];
+            links.push({"label": "No data available", "data": -1});
         }
     }
     
@@ -61,29 +65,67 @@ function generateDonutChart(processed) {
             
             var counti = keys.length;
             for (let i = 0; i < counti; i++) {
-                if (labels.user_subreddits.length < dataLimit) {
-                    labels.user_subreddits.push(keys[i]);
-                    data.user_subreddits.push(processed.commenters.subreddits[keys[i]])
-                } else if (labels.user_subreddits.length == dataLimit) {
-                    labels.user_subreddits.push("Other subreddits (" + (keys.length - i) + ")");
-                    data.user_subreddits.push(processed.commenters.subreddits[keys[i]]);
-                } else {
-                    // Add to "Other" section
-                    data.user_subreddits[dataLimit] += processed.commenters.subreddits[keys[i]];
-                }
+                user_subreddits.push({
+                    "label": keys[i],
+                    "data": processed.commenters.subreddits[keys[i]]
+                });
             }
             
             if (counti > 0) {
                 hasCommentsData = true;
+                
+                // Sort the data
+                user_subreddits.sort(function(a, b) {
+                    if (a.data > b.data) {
+                        return -1;
+                    } else if (a.data < b.data) {
+                        return 1;
+                    }
+                    return 0;
+                });
             }
         }
         
         if (!hasCommentsData) {
-            data.user_subreddits = [-1];
-            labels.user_subreddits = ["No data available"];
+            user_subreddits.push({"label": "No data available", "data": -1});
         }
     }
     
+    // Reformat data into arrays for donut chart input
+    var labels = {"links": [], "user_subreddits": []};
+    var data = {"links": [], "user_subreddits": []};
+    
+    var subkeys = Object.keys(user_subreddits);
+    var counti = subkeys.length;
+    for (let i = 0; i < counti; i++) {
+        if (i > dataLimit) {
+            // Add to "Other" section
+            data.user_subreddits[dataLimit] += user_subreddits[i].data;
+        } else if (i == dataLimit) {
+            labels.user_subreddits.push("Other subreddits (" + (counti - i) + ")");
+            data.user_subreddits.push(user_subreddits[i].data);
+        } else {
+            labels.user_subreddits.push(user_subreddits[i].label);
+            data.user_subreddits.push(user_subreddits[i].data);
+        }
+    }
+    
+    var linkeys = Object.keys(links);
+    counti = linkeys.length;
+    for (let i = 0; i < counti; i++) {
+        if (i > dataLimit) {
+            // Add to "Other links" section
+            data.links[dataLimit] += links[i].data;
+        } else if (i == dataLimit) {
+            labels.links.push("Other links (" + (counti - i) + ")");
+            data.links.push(links[i].data);
+        } else {
+            labels.links.push(links[i].label);
+            data.links.push(links[i].data);
+        }
+    }
+
+    // Finally, return the data formatted for the chart
     return [
         {
             name: "Link Occurrences",

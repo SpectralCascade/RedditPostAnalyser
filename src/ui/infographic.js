@@ -10,7 +10,7 @@ export class Infographic {
     * @param {int} height - The height of a chart.
     * @param {object} data - The data to be inserted into a given chart.
     */
-    constructor(chart_id, chartType, title, width, height, data) {
+    constructor(chart_id, chartType, title, width, height, data, onOption = null) {
         if (constructor === 'Infographic') {
             throw new Error("Cannot instantiate abstract class \"Infographic\".");
         }
@@ -24,6 +24,7 @@ export class Infographic {
         this.data = data;
         this.dropdowns = [];
         this.dindex = 0;
+        this.onOption = onOption;
 
         // References to HTML objects
         this.dropdown = null;
@@ -109,6 +110,9 @@ export class Infographic {
                 },
                 options: this.data[index].options
             });
+            if (this.onOption != null) {
+                this.onOption(index);
+            }
         } else {
             this.startDrawing();
         }
