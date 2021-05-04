@@ -7,14 +7,14 @@ function loadMeta() {
     var date = new Date();
     date = date.toString();
 
-    // creates title and time of creation of data
+    // create title and time of data analysis
     titleDate.innerHTML = "<p style=\"font-size: 24pt;\">Analysis of <strong>" +
     processed.title + "</strong></p>" +"<h3>Generated on " + date + "</h3";
 
     post_date = new Date((processed.postDate * 1000));
     post_date = post_date.toString();
-    //  puts information in info div
-    info.innerHTML = "Stages completion: " + JSON.stringify(processed.stages) +
+    // put information in info div
+    info.innerHTML = "<h2>Processing stages complete: " + Object.keys(processed.stages).length + "/5</h2>" +
     "<h2>Post uploaded on " + post_date + "</h2>" +
     "<h2>Subreddit: <a href=\"https://reddit.com/r/" + processed.subreddit + "/\" target=\"_blank\">" + processed.subreddit + "</a></h2>" +
     "<h2>Total Awards: " + processed.totalAwards + "</h2>" +
