@@ -23,6 +23,33 @@ h2 {
 .chartjs-render-monitor{
 }
 
+#export:visited {
+  color: #white;  
+}
+
+#export:hover {
+  background-color: #63A7EE;
+}
+
+#export:active {
+  border-top: 1px solid #303030;
+  border-right: 1px solid #CACACA;
+  border-bottom: 1px solid #CACACA;
+  border-left: 1px solid #303030;
+}
+
+#export {
+  color: white;
+  background-color: #5296DD;
+  padding: 2px 10% 2px 10%;
+  border-top: 1px solid #CACACA;
+  border-right: 1px solid #303030;
+  border-bottom: 1px solid #303030;
+  border-left: 1px solid #CACACA;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
 #maintitle:visited {
   color: white;
 }
