@@ -91,7 +91,7 @@ function saveOutputData() {
 */
 function start_processing() {
     if (post_requests > posts_completed) {
-        console.log("Downloading JSON from URL: " + urls[i]);
+        console.log("Downloading JSON from URL: " + urls[posts_completed]);
         processor.download_raw(urls[posts_completed], receiveJSON);
         console.log("Awaiting processing results...");
     }
