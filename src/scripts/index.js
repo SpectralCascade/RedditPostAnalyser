@@ -27,7 +27,10 @@ var stages_complete = 0;
 function receiveJSON(data) {
     if (data == null) {
         console.log("Fatal error receiving post data!");
-        process.exit();
+        posts_completed++;
+        if (posts_completed >= post_requests) {
+            process.exit();
+        }
     }
 
     // Process data
@@ -53,6 +56,8 @@ function receiveJSON(data) {
                 if (posts_completed >= post_requests) {
                     saveOutputData();
                     process.exit();
+                } else {
+                    start_processing();
                 }
             }
         }
@@ -85,11 +90,11 @@ function saveOutputData() {
 * @memberof NodeStandalone
 */
 function start_processing() {
-    for (i = 0; i < urls.length; i++) {
+    if (post_requests > posts_completed) {
         console.log("Downloading JSON from URL: " + urls[i]);
-        processor.download_raw(urls[i], receiveJSON);
+        processor.download_raw(urls[posts_completed], receiveJSON);
+        console.log("Awaiting processing results...");
     }
-    console.log("Awaiting processing results...");
 }
 
 if (process.argv.length > 2) {

@@ -30,22 +30,22 @@ function setLogLevel(level) {
  */
 var log = {
     "verbose": function() {
-        if (logging >= LogLevel.verbose) {
+        if (logging <= LogLevel.verbose) {
             console.log.apply(console, arguments);
         }
     },
     "info": function() {
-        if (logging >= LogLevel.info) {
+        if (logging <= LogLevel.info) {
             console.log.apply(console, arguments);
         }
     },
     "warning": function() {
-        if (logging >= LogLevel.warning) {
+        if (logging <= LogLevel.warning) {
             console.log.apply(console, arguments);
         }
     },
     "error": function() {
-        if (logging >= LogLevel.error) {
+        if (logging <= LogLevel.error) {
             console.log.apply(console, arguments);
         }
     }
@@ -128,7 +128,7 @@ function handle_http_response(url, http_request, callback) {
                 // Retry the request
                 retry_request(url, http_request, callback);
             } else {*/
-            log.error("ERROR: xhttp status = " + http_request.status);
+            log.error("ERROR: Received HTTP status code " + http_request.status + " on URL " + url);
             log.error("Response text: " + http_request.responseText);
             callback(null, http_request.status);
             //}
@@ -165,7 +165,7 @@ function download_raw(url, parseDataCallback, extension = ".json") {
         xhttp.setRequestHeader("Content-Type", "text/plain");
 
         xhttp.onreadystatechange = function() { handle_http_response(mainurl, xhttp, parseDataCallback); };
-        log.info("Sending HTTP request to " + mainurl);
+        log.verbose("Sending HTTP request to " + mainurl);
         xhttp.send();
     } else {
         // Webpage isn't on Reddit or Pushshift
@@ -401,7 +401,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
             // User subreddit analysis
             var commenter_name = children[i].data.author;
 
-            if (!(commenter_name in allCommenterNames)) {
+            if (!(commenter_name in allCommenterNames) && commenter_name != "[deleted]") {
                 other_downloads++;
                 allCommenterNames[commenter_name] = 1;
                 redditDownload("https://www.reddit.com/user/" + commenter_name, function(raw) {
