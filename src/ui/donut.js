@@ -8,26 +8,44 @@ class DonutChart extends Infographic {
 
 }
 
-function generateDonutChart(processed) {    
+function generateDonutChart(processed) {
     // Data format is {"label": "", "data": null}
     var links = [];
     var user_subreddits = [];
-    
+
     // Only allow a certain number of data points to be shown
     var dataLimit = 10;
-    
+
     // Chart colours
     var colours = [
         'rgb(82,150,221)',
-        'rgb(255,99,20)'
-    ];
+        'rgb(255,99,20)',
+				'#CC00FF',
+				'#FF0003',
+				'#33FF00',
+				'#00B3FF',
+				'#FF0085',
+				'#006315',
+				'#FFFA00',
+				'#0005FF',
+				'#DA259E',
+				'#DABC25',
+				'#1ECBE1',
+				'#25DA61',
+				'#FC00BE',
+				'#00FF73',
+				'#000CFF',
+				'#FF008C',
+				'#FFF300',
+				'#F807C9'
+			];
 
     // Check what stages are complete
     var hasLinksData = false;
     var hasCommentsData = false;
     var linksLoaded = "links" in processed.stages && processed.stages.links >= 1;
     var commentsLoaded = "comments" in processed.stages && processed.stages.comments >= 1;
-    
+
     // Links data
     if (linksLoaded) {
         for (let i = 0; i < processed.postLinks.length; i++) {
@@ -41,7 +59,7 @@ function generateDonutChart(processed) {
                     "data": processed.postLinks[i].subreddits[keys[a]].locations.length
                 });
             }
-            
+
             // Sort the data
             links.sort(function(a, b) {
                 if (a.data > b.data) {
@@ -52,17 +70,17 @@ function generateDonutChart(processed) {
                 return 0;
             });
         }
-        
+
         if (!hasLinksData) {
             links.push({"label": "No data available", "data": -1});
         }
     }
-    
+
     // User subreddits data
     if (commentsLoaded) {
         if (!hasCommentsData) {
             keys = Object.keys(processed.commenters.subreddits);
-            
+
             var counti = keys.length;
             for (let i = 0; i < counti; i++) {
                 user_subreddits.push({
@@ -70,10 +88,10 @@ function generateDonutChart(processed) {
                     "data": processed.commenters.subreddits[keys[i]]
                 });
             }
-            
+
             if (counti > 0) {
                 hasCommentsData = true;
-                
+
                 // Sort the data
                 user_subreddits.sort(function(a, b) {
                     if (a.data > b.data) {
@@ -85,16 +103,16 @@ function generateDonutChart(processed) {
                 });
             }
         }
-        
+
         if (!hasCommentsData) {
             user_subreddits.push({"label": "No data available", "data": -1});
         }
     }
-    
+
     // Reformat data into arrays for donut chart input
     var labels = {"links": [], "user_subreddits": []};
     var data = {"links": [], "user_subreddits": []};
-    
+
     var subkeys = Object.keys(user_subreddits);
     var counti = subkeys.length;
     for (let i = 0; i < counti; i++) {
@@ -109,7 +127,7 @@ function generateDonutChart(processed) {
             data.user_subreddits.push(user_subreddits[i].data);
         }
     }
-    
+
     var linkeys = Object.keys(links);
     counti = linkeys.length;
     for (let i = 0; i < counti; i++) {
