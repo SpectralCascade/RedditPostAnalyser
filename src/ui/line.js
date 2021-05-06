@@ -91,6 +91,11 @@ function generateTimeCharts(processed) {
                 data: comments
               }],
               options: {
+                title: {
+                  display: true,
+                  text: 'Comments over Time',
+                  fontSize: 20,
+              },
                 scales: {
                   xAxes: [{
                     type: 'time',
@@ -128,6 +133,11 @@ function generateTimeCharts(processed) {
                   data: incidentData
                 }],
                 options: {
+                  title: {
+                    display: true,
+                    text: 'Incident Comments over Time',
+                    fontSize: 20,
+                },
                   scales: {
                     xAxes: [{
                       type: 'time',
@@ -168,7 +178,7 @@ function loadChartsData() {
     if (line == null) {
         line = new LineChart(
             "line",
-            "Line Chart",
+            "",
             900,
             400,
             generateTimeCharts(processed)
