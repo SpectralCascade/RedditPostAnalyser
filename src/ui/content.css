@@ -24,7 +24,7 @@ h2 {
 }
 
 #export:visited {
-  color: #white;  
+  color: #white;
 }
 
 #export:hover {
@@ -73,6 +73,7 @@ h2 {
   border-right: 1px solid #d7d7d7;
   border-spacing: 150px;
   padding: 20px 20px 20px 20px;
+  margin-top: 50px;
 }
 
 #line_chart{
@@ -115,7 +116,6 @@ h2 {
   min-width: 400px;
   max-width: 400px;
   padding: 50px 20px 20px 150px;
-  border-left: 1px solid #d7d7d7;
 }
 
 #chartSelect{
@@ -134,13 +134,11 @@ footer {
     min-width: 400px;
     max-width: 400px;
     padding: 20px 20px 20px 20px;
-    border-left: 1px solid #d7d7d7;
   }
   #donut_chart{
     min-width: 400px;
     max-width: 400px;
     padding: 20px 20px 20px 20px;
-    border-left: 1px solid #d7d7d7;
   }
 }
 @media screen and (max-width: 1338px) {
@@ -160,13 +158,11 @@ footer {
     min-width: 400px;
     max-width: 400px;
     padding: 20px 20px 20px 20px;
-    border-left: 1px solid #d7d7d7;
   }
   #pie_chart{
     min-width: 400px;
     max-width: 400px;
     padding: 50px 20px 20px 20px;
-    border-left: 0px solid #d7d7d7;
   }
 }
 
