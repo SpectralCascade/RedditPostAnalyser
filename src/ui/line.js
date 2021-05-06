@@ -80,10 +80,13 @@ function generateTimeCharts(processed) {
     var duplicatesData = [];
     var sortingArray2 = [];
     var pointLabels = [];
+    var duplicatesTitle = "";
 
     if (processed.duplicates.url == []){
       duplicatesData.push({t:(new Date(processed.postDate * 1000)), y :0});
+      duplicatesTitle = 'No Reposts Found';
     } else {
+      duplicatesTitle = 'Reposts over Time';
       for (var i=0; i < processed.duplicates.url.length; i++){
         sortingArray2.push([(processed.duplicates.data[i].postDate * 1000), processed.duplicates.data[i].title]);
       }
@@ -92,6 +95,9 @@ function generateTimeCharts(processed) {
       });
 
       for (var i=0; i < sortingArray2.length; i++){
+        if (i===0 && (processed.postDate*1000) < sortingArray2[0][0]){
+          duplicatesData.push({t:(new Date(processed.postDate * 1000)), y: 0});
+        }
         duplicatesSum++;
         duplicatesData.push({t:(new Date(sortingArray2[i][0])), y: duplicatesSum});
         pointLabels.push(sortingArray2[i][1]);
@@ -200,7 +206,7 @@ function generateTimeCharts(processed) {
                 options: {
                   title: {
                     display: true,
-                    text: 'Reposts over Time',
+                    text: duplicatesTitle,
                     fontSize: 20,
                 },
                   scales: {
