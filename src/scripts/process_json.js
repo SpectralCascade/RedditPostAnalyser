@@ -331,13 +331,13 @@ function process_links(data, processed, onComplete) {
                             processed.postLinks[i].subreddits[results.data[j].subreddit_id] = {};
                             processed.postLinks[i].numSubreddits++;
                         }
-                        processed.postLinks[i].subreddits[results.data[j].subreddit_id]["name"] = results.data[j].subreddit;
+                        processed.postLinks[i].subreddits[results.data[j].subreddit_id].name = results.data[j].subreddit;
                         if (!("locations" in processed.postLinks[i].subreddits[results.data[j].subreddit_id])) {
-                            processed.postLinks[i].subreddits[results.data[j].subreddit_id]["locations"] = [];
+                            processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations = [];
+                            processed.postLinks[i].subreddits[results.data[j].subreddit_id].datesms = [];
                         }
-                        processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations.push(
-                            results.data[j].url
-                        );
+                        processed.postLinks[i].subreddits[results.data[j].subreddit_id].locations.push(results.data[j].url);
+                        processed.postLinks[i].subreddits[results.data[j].subreddit_id].datesms.push(results.data[j].created_utc * 1000);
                     }
                     log.info("Received link query results for URL: " + rawPostLinks[i]);
                 }

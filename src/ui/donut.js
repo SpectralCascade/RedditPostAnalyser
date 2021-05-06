@@ -38,7 +38,7 @@ function generateDonutChart(processed) {
 				'#FF008C',
 				'#FFF300',
 				'#F807C9'
-			];
+    ];
 
     // Check what stages are complete
     var hasLinksData = false;

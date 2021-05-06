@@ -112,6 +112,8 @@ if (process.argv.length > 2) {
             runTests = true;
         } else if (process.argv[i] == "-s" || process.argv[i] == "--stress-test") {
             stressTest = true;
+        } else if (process.argv[i] == "--verbose") {
+            processor.setLogLevel("verbose");
         } else {
             urls.push(process.argv[i]);
             post_requests++;

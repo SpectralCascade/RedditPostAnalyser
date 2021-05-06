@@ -25,6 +25,29 @@ function generateTimeCharts(processed) {
         return a[0] - b[0];
     });
 
+    var colours = [
+        'rgb(82,150,221)',
+        'rgb(255,99,20)',
+				'#CC00FF',
+				'#FF0003',
+				'#33FF00',
+				'#00B3FF',
+				'#FF0085',
+				'#006315',
+				'#FFFA00',
+				'#0005FF',
+				'#DA259E',
+				'#DABC25',
+				'#1ECBE1',
+				'#25DA61',
+				'#FC00BE',
+				'#00FF73',
+				'#000CFF',
+				'#FF008C',
+				'#FFF300',
+				'#F807C9'
+    ];
+
     //set up variables for calculating axis data
     //comments chart var
     var controData = [];
@@ -103,6 +126,52 @@ function generateTimeCharts(processed) {
         pointLabels.push(sortingArray2[i][1]);
       }
     };
+    
+    // Links
+    var linkDatasets = [];
+    var linksForSorting = {};
+    var linksTitle = "";
+    
+    if (processed.postLinks.length <= 0 && "links" in processed.stages && processed.stages.links == 1) {
+        // todo
+        linksTitle = "No data available";
+    } else {
+        var counter = 0;
+        for (var i = 0; i < processed.postLinks.length; i++) {
+            var keys = Object.keys(processed.postLinks[i].subreddits);
+            
+            if (keys.length > 0) {
+                linkDatasets.push({
+                    label: processed.postLinks[i].url,
+                    borderColor: colours[counter % colours.length],
+                    fill: false,
+                    data: []
+                });
+                var dataset = [];
+                for (var j = 0; j < keys.length; j++) {
+                    for (var k = 0; k < processed.postLinks[i].subreddits[keys[j]].datesms.length; k++) {
+                        dataset.push(processed.postLinks[i].subreddits[keys[j]].datesms[k]);
+                    }
+                }
+                dataset.sort(function(a, b) {
+                    return a - b;
+                });
+                
+                for (var j = 0; j < dataset.length; j++) {
+                    linkDatasets[counter].data.push({t: (new Date(dataset[j])), y: j});
+                }
+                counter++;
+            }
+        }
+        // remove empty ones
+        /*for (var i = linkDatasets.length - 1; i > 0; i--) {
+            if (linkDatasets[i].data.length < 1) {
+                linkDatasets[i].data.pop();
+            }
+        }*/
+        
+    }
+    
 
     var displayStep = Math.round(step/60000);
     return [
@@ -226,6 +295,37 @@ function generateTimeCharts(processed) {
                       scaleLabel: {
                         display: true,
                         labelString: 'Total Reposts'
+                      }
+                    }]
+                  }
+                }
+              },
+              {
+                name: "Links over Time",
+                datasets: linkDatasets,
+                options: {
+                  title: {
+                    display: true,
+                    text: linksTitle,
+                    fontSize: 20,
+                },
+                  scales: {
+                    xAxes: [{
+                      type: 'time',
+                      time: {
+                        unit: 'hour',
+                        unitStepSize: 1,
+                      },
+                      distribution: 'linear',
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Link Post Time'
+                      }
+                    }],
+                    yAxes: [{
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Total Links'
                       }
                     }]
                   }
