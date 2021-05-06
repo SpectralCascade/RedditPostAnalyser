@@ -82,7 +82,7 @@ function generateTimeCharts(processed) {
     var pointLabels = [];
     var duplicatesTitle = "";
 
-    if (processed.duplicates.url == []){
+    if (processed.duplicates.url.length <= 0 && "reposts" in processed.stages && processed.stages.reposts == 1){
       duplicatesData.push({t:(new Date(processed.postDate * 1000)), y :0});
       duplicatesTitle = 'No Reposts Found';
     } else {
