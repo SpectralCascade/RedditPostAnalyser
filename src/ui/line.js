@@ -91,6 +91,10 @@ function generateTimeCharts(processed) {
                 data: comments
               }],
               options: {
+                title: {
+                  display: true,
+                  text: 'Comments over Time'
+              },
                 scales: {
                   xAxes: [{
                     type: 'time',
@@ -128,6 +132,10 @@ function generateTimeCharts(processed) {
                   data: incidentData
                 }],
                 options: {
+                  title: {
+                    display: true,
+                    text: 'Incident Comments over Time'
+                },
                   scales: {
                     xAxes: [{
                       type: 'time',
