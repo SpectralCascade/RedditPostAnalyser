@@ -74,6 +74,30 @@ function generateTimeCharts(processed) {
       };
     }
 
+    //duplicates var
+    var duplicatesSum = 0;
+    var duplicatesContro = 0;
+    var duplicatesData = [];
+    var sortingArray2 = [];
+    var pointLabels = [];
+
+    if (processed.duplicates.url == []){
+      duplicatesData.push({t:(new Date(processed.postDate * 1000)), y :0});
+    } else {
+      for (var i=0; i < processed.duplicates.url.length; i++){
+        sortingArray2.push([(processed.duplicates.data[i].postDate * 1000), processed.duplicates.data[i].title]);
+      }
+      sortingArray2.sort(function compare(a, b) {
+          return a[0] - b[0];
+      });
+
+      for (var i=0; i < sortingArray2.length; i++){
+        duplicatesSum++;
+        duplicatesData.push({t:(new Date(sortingArray2[i][0])), y: duplicatesSum});
+        pointLabels.push(sortingArray2[i][1]);
+      }
+    };
+
     var displayStep = Math.round(step/60000);
     return [
             {
@@ -162,6 +186,42 @@ function generateTimeCharts(processed) {
                     point:{
                       radius: 0
                     }
+                  }
+                }
+              },
+              {
+                name: "Reposts over Time",
+                datasets:  [{
+                  label: 'Reposts',
+                  borderColor: '#ff6314',
+                  fill: false,
+                  data: duplicatesData
+                }],
+                options: {
+                  title: {
+                    display: true,
+                    text: 'Reposts over Time',
+                    fontSize: 20,
+                },
+                  scales: {
+                    xAxes: [{
+                      type: 'time',
+                      time: {
+                        unit: 'minute',
+                        unitStepSize: 30,
+                      },
+                      distribution: 'linear',
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Repost Post Time'
+                      }
+                    }],
+                    yAxes: [{
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Total Reposts'
+                      }
+                    }]
                   }
                 }
               }

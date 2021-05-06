@@ -159,7 +159,7 @@ function download_raw(url, parseDataCallback, extension = ".json") {
         let mainurl = url + extension;
         var xhttp = new XMLHttpRequest();
         //download_requests.push(xhttp);
-        
+
         xhttp.open("GET", mainurl, asyncRequest);
 
         xhttp.setRequestHeader("Content-Type", "text/plain");
@@ -292,9 +292,9 @@ function process_links(data, processed, onComplete) {
     for (plink in postLinks) {
         log.info(String(plink) + ": " + String(postLinks[plink]));
     }
-    
+
     var query = "http://api.pushshift.io/reddit/submission/search/?q="
-    
+
     if (postLinks.length == 0) {
         onComplete();
     }
@@ -315,7 +315,7 @@ function process_links(data, processed, onComplete) {
 
                     // Index could vary due to asynchronous nature and the possibility of a download failure.
                     i = processed.postLinks.length;
-                    
+
                     // Metadata for each processed link
                     processed.postLinks.push({
                         "url" : rawPostLinks[i],
@@ -323,7 +323,7 @@ function process_links(data, processed, onComplete) {
                         "occurrences" : 0,
                         "numSubreddits" : 0
                     });
-                    
+
                     // Using the query results, determine occurrences and which subreddits the links appear in.
                     for (var j = 0, countj = results.data.length; j < countj; j++) {
                         processed.postLinks[i].occurrences++;
@@ -411,7 +411,7 @@ function recurseComments(processed, children, moreComments, onComplete) {
                     } else {
                         var user = JSON.parse(raw);
                         var subreddits = {};
-                        
+
                         // Count unique subreddits
                         for (var j = 0; j < user.data.children.length; j++) {
                             var subreddit = user.data.children[j].data.subreddit;
@@ -511,65 +511,64 @@ function process_meta(data, processed) {
  *@memberof Processing
  */
 
-function process_reposts(data, processed, onComplete){
-    let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
+ function process_reposts(data, processed, onComplete){
+     let duplicate_url = processed.url.replace("/comments/", "/duplicates/");
+     processed.duplicates = {};
+     processed.duplicates.url = [];
+     processed.duplicates.data = [];
+     log.info("Processing reposts...");
+     redditDownload(duplicate_url, function(raw_json) {
+         if (raw_json == null) {
+             return;
+         }
+         data = JSON.parse(raw_json);
+         for (var i = 0; i < data[1].data.children.length; i++) {
+           var checkIf = processed.duplicates.url
+           if (checkIf.includes(data[1].data.children[i].data.permalink)) {
+           } else {
+               processed.duplicates.url.push(data[1].data.children[i].data.permalink);
+           }
+         }
 
-    log.info("Processing reposts...");
-    redditDownload(duplicate_url, function(raw_json) {
-        if (raw_json == null) {
-            return;
-        }
-        data = JSON.parse(raw_json);
-        processed.duplicates = {};
-        processed.duplicates.url = [];
-        processed.duplicates.data = [];
+         let total_reposts = processed.duplicates.url.length;
+         if (total_reposts == 0) {
+             onComplete();
+         }
+         for (var i = 0; i < processed.duplicates.url.length; i++) {
+             var repost_url = ("https://www.reddit.com" + processed.duplicates.url[i]);
+             redditDownload(repost_url, function(duplicate_json) {
+                 if (duplicate_json == null) {
+                     // uh oh
+                     return;
+                 }
+                 process_raw(
+                     duplicate_json,
+                     function(stage, repost_data) {
+                         log.info("Repost " + repost_data.url + " stage completed: " + stage);
+                         repost_data.stages[stage] = 1;
 
-        for (var i = 0; i < data[1].data.children.length; i++) {
-            if (processed.duplicates.url[i] == data[1].data.children[i].data.permalink) {
-                // Nothing needs to go here
-            } else {
-                processed.duplicates.url.push(data[1].data.children[i].data.permalink);
-            }
-        }
+                         // TODO: wtf is this condition for? surely reposts stage onComplete can happen out of order?
+                         if (
+                             "meta" in repost_data.stages &&
+                             "initial" in repost_data.stages
+                         ) {
+                             processed.duplicates.data.push(repost_data);
+                             total_reposts--;
+                           //  processed.duplicates.data.push(repost_data);
+                             log.info("Repost " + repost_data.url + " processing finished, " + total_reposts + " repost(s) remaining.");
+                             if (total_reposts <= 0) {
+                                 onComplete();
+                             }
+                         }
+                     },
 
-        let total_reposts = processed.duplicates.url.length;
-        if (total_reposts == 0) {
-            onComplete();
-        }
-        for (var i = 0; i < processed.duplicates.url.length; i++) {
-            var repost_url = ("https://www.reddit.com" + processed.duplicates.url[i]);
-            redditDownload(repost_url, function(duplicate_json) {
-                if (duplicate_json == null) {
-                    // uh oh
-                    return;
-                }
-                process_raw(
-                    duplicate_json,
-                    function(stage, repost_data) {
-                        log.info("Repost " + repost_data.url + " stage completed: " + stage);
-                        repost_data.stages[stage] = 1;
-                        // TODO: wtf is this condition for? surely reposts stage onComplete can happen out of order?
-                        if (
-                            "meta" in repost_data.stages &&
-                            "comments" in repost_data.stages &&
-                            "links" in repost_data.stages
-                        ) {
-                            total_reposts--;
-                            processed.duplicates.data.push(repost_data);
-                            log.info("Repost " + repost_data.url + " processing finished, " + total_reposts + " repost(s) remaining.");
-                            if (total_reposts <= 0) {
-                                onComplete();
-                            }
-                        }
-                    },
-                    false
-                );
+                 false);
 
-            });
-        }
-    });
+             },);
+         }
+     });
 
-}
+ }
 
 /**
  * Takes the raw json data and processes it to a form ready for further data manipulation.
@@ -589,24 +588,22 @@ function process_raw(raw_json, onStageComplete, process_duplicates = true) {
         process_meta(data, processed);
         onStageComplete("meta", processed);
 
-        // Comments
-        recurseComments(
-            processed,
-            data[1].data.children,
-            null,
-            function() {
-                onStageComplete("comments", processed);
-            }
-        );
-        log.info("Processed primary comments.");
-
-        // Extract URLs in post and query pushshift
-        // TODO: do the same for links in comments
-        process_links(data, processed, function() { onStageComplete("links", processed); });
-
         // Now process reposts
         if (process_duplicates) {
-            process_reposts(data, processed, function() { onStageComplete("reposts", processed); });
+          process_reposts(data, processed, function() { onStageComplete("reposts", processed); });
+          // Comments
+          recurseComments(
+              processed,
+              data[1].data.children,
+              null,
+              function() {
+                  onStageComplete("comments", processed);
+              }
+          );
+          log.info("Processed primary comments.");
+          // Extract URLs in post and query pushshift
+          // TODO: do the same for links in comments
+          process_links(data, processed, function() { onStageComplete("links", processed); });
         }
 
         // There may be further downloads and processing pending, but initial processing is complete.
