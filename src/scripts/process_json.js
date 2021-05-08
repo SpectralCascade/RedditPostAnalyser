@@ -624,5 +624,5 @@ function setAsync(async){
 
 repost_json = [];
 if (typeof module !== 'undefined') {
-    module.exports = { download_raw, process_raw, process_meta, extract_urls, process_links, process_reposts, recurseComments, setAsync, setLogLevel };
+    module.exports = { download_raw, process_raw, process_meta, extract_urls, process_links, process_reposts, recurseComments, setAsync, setLogLevel, redditDownload};
 }
