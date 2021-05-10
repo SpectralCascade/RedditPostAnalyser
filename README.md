@@ -9,7 +9,7 @@ First of all, download this repository and extract it (or `git clone`).
 As a Chrome extension, you need to add it via the extensions menu:
 
 1. In Chrome, click on the 3 dots menu in the upper right corner and hover over the "More tools" section, then click "Extensions"
-2. Enable developer mode
+2. Enable developer mode with the toggle in the top right of the page
 3. Click "Load Unpacked"
 4. Locate the repository folder and select it
 5. Pin the extension by clicking the puzzle piece icon and the pin button next to "Reddit Post Analyser"
