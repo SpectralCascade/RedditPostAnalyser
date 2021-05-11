@@ -267,7 +267,7 @@ var total_links = 0;
 var rawPostLinks = [];
 
 // How long to wait between link queries to avoid HTTP code 429.
-var linkQueryDelay = 1000;
+var linkQueryDelay = 500;
 
 /**
  * The proccess_links function analyses the links within a post and queries to pushshift to extract data and determine occurences of these links across reddit.
